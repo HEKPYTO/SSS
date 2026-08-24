@@ -1,4 +1,5 @@
 """cli.py — argparse mirror of ssffs.cpp:1105-1154"""
+
 from __future__ import annotations
 
 import argparse
@@ -60,7 +61,9 @@ def main(argv=None):
         parser.error("--target-d must be smaller than number of features")
     outer = Split(data.n_classes)
     for c in range(data.n_classes):
-        rr_split_class(data.class_size[c], args.rr_train, args.rr_test, outer.train[c], outer.test[c])
+        rr_split_class(
+            data.class_size[c], args.rr_train, args.rr_test, outer.train[c], outer.test[c]
+        )
     # folds
     if args.cv_folds and args.cv_folds > 1:
         folds = cv_folds(outer, args.cv_folds, data.n_classes)
@@ -102,7 +105,12 @@ def main(argv=None):
     if res is None:
         print("search not finished", file=sys.stderr)
         sys.exit(1)
-    out = {"value": res["value"], "size": res["size"], "features": res["features"], "evaluations": res["evaluations"]}
+    out = {
+        "value": res["value"],
+        "size": res["size"],
+        "features": res["features"],
+        "evaluations": res["evaluations"],
+    }
     print(json.dumps(out))
     return 0
 

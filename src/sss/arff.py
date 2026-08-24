@@ -1,4 +1,5 @@
 """arff.py — ARFF loader + scaler, verbatim ssffs.cpp:99-330"""
+
 from __future__ import annotations
 
 import numpy as np
@@ -30,7 +31,7 @@ def _arff_trim(s: str) -> str:
 def load_arff(path: str) -> ArffData:
     # read all lines
     try:
-        with open(path, "r", encoding="utf-8", errors="strict") as f:
+        with open(path, encoding="utf-8", errors="strict") as f:
             raw = f.read().splitlines()
     except FileNotFoundError:
         _die(f"cannot open '{path}'")
@@ -46,7 +47,7 @@ def load_arff(path: str) -> ArffData:
         nonlocal class_attr, n_features, n_classes, feat_of_attr
         for i, a in enumerate(attrs):
             un = _upper(a["name"])
-            if (un == "CLASS" or un == "'CLASS'") and a["nominal"]:
+            if (un in {"CLASS", "'CLASS'"}) and a["nominal"]:
                 a["is_class"] = True
                 class_attr = i
         feat_of_attr = [-1] * len(attrs)
@@ -114,15 +115,14 @@ def load_arff(path: str) -> ArffData:
                             cur += ch
                             if ch == in_q:
                                 in_q = None
+                        elif ch in ("'", '"'):
+                            in_q = ch
+                            cur += ch
+                        elif ch == ",":
+                            parts.append(cur.strip())
+                            cur = ""
                         else:
-                            if ch in ("'", '"'):
-                                in_q = ch
-                                cur += ch
-                            elif ch == ",":
-                                parts.append(cur.strip())
-                                cur = ""
-                            else:
-                                cur += ch
+                            cur += ch
                     if cur.strip():
                         parts.append(cur.strip())
                     for part in parts:
@@ -170,15 +170,14 @@ def load_arff(path: str) -> ArffData:
                         cur += ch
                         if ch == in_q:
                             in_q = None
+                    elif ch in ("'", '"'):
+                        in_q = ch
+                        cur += ch
+                    elif ch == ",":
+                        tokens.append(cur)
+                        cur = ""
                     else:
-                        if ch in ("'", '"'):
-                            in_q = ch
-                            cur += ch
-                        elif ch == ",":
-                            tokens.append(cur)
-                            cur = ""
-                        else:
-                            cur += ch
+                        cur += ch
                 tokens.append(cur)
                 if len(tokens) != len(attrs):
                     _die("dense row ended too soon")
@@ -214,7 +213,7 @@ def load_arff(path: str) -> ArffData:
             if upper_line.startswith("@ATTRIBUTE"):
                 # parse: @ATTRIBUTE <name> <type>
                 # name may be quoted or single word, type is rest
-                rest = t[len("@ATTRIBUTE"):].strip()
+                rest = t[len("@ATTRIBUTE") :].strip()
                 if not rest:
                     _die("empty attribute definition")
                 # name is first token (quoted or unquoted)
@@ -246,15 +245,14 @@ def load_arff(path: str) -> ArffData:
                             cur += ch
                             if ch == in_q:
                                 in_q = None
+                        elif ch in ("'", '"'):
+                            in_q = ch
+                            cur += ch
+                        elif ch == ",":
+                            vals.append(_arff_trim(cur))
+                            cur = ""
                         else:
-                            if ch in ("'", '"'):
-                                in_q = ch
-                                cur += ch
-                            elif ch == ",":
-                                vals.append(_arff_trim(cur))
-                                cur = ""
-                            else:
-                                cur += ch
+                            cur += ch
                     vals.append(_arff_trim(cur))
                     # strip empty?
                     cleaned = []
@@ -269,7 +267,9 @@ def load_arff(path: str) -> ArffData:
                 else:
                     tn = _upper(type_str)
                     if tn not in ("REAL", "NUMERIC", "INTEGER"):
-                        _die(f"unsupported attribute type '{type_str}' ('{name}') - this standalone loads numeric features and one nominal class only")
+                        _die(
+                            f"unsupported attribute type '{type_str}' ('{name}') - this standalone loads numeric features and one nominal class only"
+                        )
                 attrs.append(a)
         else:
             _die(f"unexpected line before @DATA: '{t}'")

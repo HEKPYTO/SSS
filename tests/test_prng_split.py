@@ -1,13 +1,14 @@
-import pathlib
-
 def test_prng_sequence():
-    from src.sss.prng import ss_srand, ss_rand
+    from src.sss.prng import ss_rand, ss_srand
+
     ss_srand(1)
     first5 = [ss_rand() for _ in range(5)]
     assert first5 == [41, 18467, 6334, 26500, 19169]
 
+
 def test_arff_sparse_reuters():
     from src.sss.arff import load_arff
+
     d = load_arff("anc/data/reuters_apte.arff")
     assert d.n_features == 10105
     assert d.n_classes == 33
@@ -16,6 +17,7 @@ def test_arff_sparse_reuters():
     assert d.data.size == 8941 * 10105
     # check class_size respects per-class counts (should sum)
     assert len(d.class_size) == 33
+
 
 def test_arff_dense_roundtrip(tmp_path):
     # create tiny dense ARFF with class last
@@ -30,20 +32,25 @@ def test_arff_dense_roundtrip(tmp_path):
 5.0,6.0,c0
 """)
     from src.sss.arff import load_arff
+
     d = load_arff(str(p))
     assert d.n_features == 2
     assert d.n_classes == 2
     assert d.class_size == [2, 1]
     # class-major: c0 samples (1,2) and (5,6) first, then c1 (3,4)
     import numpy as np
+
     # flat = [1,2, 5,6, 3,4] in float64
     assert np.allclose(d.data[:2], [1.0, 2.0])
     assert np.allclose(d.data[2:4], [5.0, 6.0])
     assert np.allclose(d.data[4:6], [3.0, 4.0])
 
+
 def test_scaler_to01():
-    from src.sss.arff import ArffData, scale_to01
     import numpy as np
+
+    from src.sss.arff import ArffData, scale_to01
+
     # 2 features, 2 samples class-major
     data = np.array([0.0, 10.0, 10.0, 20.0], dtype=np.float64)
     d = ArffData(2, 1, [2], data)
@@ -51,9 +58,11 @@ def test_scaler_to01():
     # f0: 0->0, 10->1 ; f1:10->0,20->1
     assert np.allclose(d.data, [0.0, 0.0, 1.0, 1.0])
 
+
 def test_rr_split_counts():
     from src.sss.prng import ss_srand
     from src.sss.split import rr_split_class
+
     ss_srand(1)
     train, test = [], []
     rr_split_class(1000, 50, 50, train, test)
@@ -65,9 +74,11 @@ def test_rr_split_counts():
     rr_split_class(100, 80, 10, train, test)
     assert len(train) == 80 and len(test) == 10
 
+
 def test_rr_split_deterministic():
     from src.sss.prng import ss_srand
     from src.sss.split import rr_split_class
+
     ss_srand(123)
     t1, e1 = [], []
     rr_split_class(10, 50, 50, t1, e1)
@@ -76,8 +87,10 @@ def test_rr_split_deterministic():
     rr_split_class(10, 50, 50, t2, e2)
     assert t1 == t2 and e1 == e2
 
+
 def test_cv_folds():
     from src.sss.split import Split, cv_folds
+
     outer = Split(2)
     outer.train = [[0, 1, 2, 3, 4], [10, 11, 12]]
     outer.test = [[], []]
@@ -91,9 +104,11 @@ def test_cv_folds():
     # class 1: 3 samples -> 1,1,1
     assert [len(f.test[1]) for f in folds] == [1, 1, 1]
 
+
 def test_subset_random_and_members():
     from src.sss.prng import ss_srand
     from src.sss.subset import Subset
+
     ss_srand(1)
     s = Subset(500)
     s.make_random_subset(10)
@@ -116,8 +131,10 @@ def test_subset_random_and_members():
     s.select_raw(5)
     assert s.member(5)
 
+
 def test_subset_forward_backward_inversion():
     from src.sss.subset import Subset
+
     s = Subset(5)
     s.deselect_all()
     s.select_raw(1)

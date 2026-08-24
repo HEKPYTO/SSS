@@ -21,6 +21,7 @@ def test_wrapper_knn_accuracy_range():
     ok, _ = crit.evaluate(empty)
     assert not ok
 
+
 def test_wrapper_knn_tie_avoidance():
     from src.sss.criteria import make_wrapper_knn
     from src.sss.subset import Subset
@@ -65,7 +66,9 @@ def test_multinom_bhattacharyya_runs():
     s2.deselect_all()
     s2.select_raw(0)
     ok2, val2 = crit.evaluate(s2)
-    assert ok2 and abs(val - val2) < 1e-12 or True  # after second feature added, first IB still same for singleton re-eval? Actually crit now has dd=2, next singleton will reuse cached IB, should be same
+    assert (
+        (ok2 and abs(val - val2) < 1e-12) or True
+    )  # after second feature added, first IB still same for singleton re-eval? Actually crit now has dd=2, next singleton will reuse cached IB, should be same
     s3 = Subset(d.n_features)
     s3.deselect_all()
     s3.select_raw(5)

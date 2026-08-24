@@ -1,4 +1,5 @@
 """subset.py — Feature subset, verbatim ssffs.cpp:391-424"""
+
 from __future__ import annotations
 
 from .prng import ss_rand

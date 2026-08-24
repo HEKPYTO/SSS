@@ -1,12 +1,16 @@
 """sampled_step.py — sADD/sRMV budgeted operators, verbatim ssffs.cpp:707-981"""
+
 from __future__ import annotations
 
 import math
 import sys
+from typing import TYPE_CHECKING
 
 from .prng import frand
 from .subset import Subset
-from .weighter import Weighter
+
+if TYPE_CHECKING:
+    from .weighter import Weighter
 
 
 class SampledStep:
@@ -38,12 +42,24 @@ class SampledStep:
         r = order / cnt if cnt else 0
         if forward:
             self.count_forward += 1
-            self.order_forward = ((self.count_forward - 1) * self.order_forward + r) / self.count_forward
-            print(f"\nF order = {r}({order}) avgorder {self.order_forward} count = {self.count_forward} all_evals = {self.all_evals} pool = {pool} proposed = {cnt}", file=os, flush=True)
+            self.order_forward = (
+                (self.count_forward - 1) * self.order_forward + r
+            ) / self.count_forward
+            print(
+                f"\nF order = {r}({order}) avgorder {self.order_forward} count = {self.count_forward} all_evals = {self.all_evals} pool = {pool} proposed = {cnt}",
+                file=os,
+                flush=True,
+            )
         else:
             self.count_backward += 1
-            self.order_backward = ((self.count_backward - 1) * self.order_backward + r) / self.count_backward
-            print(f"\nB order = {r}({order}) avgorder {self.order_backward} count = {self.count_backward} all_evals = {self.all_evals} pool = {pool} proposed = {cnt}", file=os, flush=True)
+            self.order_backward = (
+                (self.count_backward - 1) * self.order_backward + r
+            ) / self.count_backward
+            print(
+                f"\nB order = {r}({order}) avgorder {self.order_backward} count = {self.count_backward} all_evals = {self.all_evals} pool = {pool} proposed = {cnt}",
+                file=os,
+                flush=True,
+            )
 
     def _full_sweep(self, sub: Subset, crit, pool: int, os):
         forward = sub.forward
