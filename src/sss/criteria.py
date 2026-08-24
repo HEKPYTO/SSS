@@ -52,7 +52,7 @@ class WrapperKnn:
             return False, 0.0
         feats = sorted(feats)
         self.feats = feats
-        # fast sklearn path if available — matches C++ wrapper at k=1 and small k with Euclidean to01 scaling
+        # ponytail: sklearn brute KNN for speed, exact tie handling via _evaluate_exact if k>1 tie at threshold matters
         try:
             from sklearn.neighbors import KNeighborsClassifier
 
