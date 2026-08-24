@@ -1,4 +1,4 @@
-"""app.py — Streamlit demo: upload ARFF -> frontier + selected features (ponytail 45 lines)"""
+"""app.py — Streamlit demo: upload ARFF -> frontier + selected features"""
 import pathlib
 import sys
 
@@ -26,7 +26,6 @@ if uploaded:
             st.success(f"Selected {len(sel)} features, value {sffs.value_:.4f}, evals {sffs.evaluations_}")
             st.write(sel)
             # crude frontier: run for d=1..target and plot value (reuse evaluations would be heavy, so single run)
-            # ponytail: instead show selected indices
             st.line_chart({"selected": sel})
 else:
     st.info("Upload anc/data/reuters_apte.arff to try")

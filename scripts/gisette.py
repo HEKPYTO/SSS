@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""gisette.py — 5k-d benchmark, ponytail y=10 default"""
+"""gisette.py — 5k-d benchmark, y=10 default"""
 import argparse
 import json
 import pathlib

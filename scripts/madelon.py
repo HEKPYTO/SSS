@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""madelon.py — reproduce madelon benchmark, ponytail y=25 default"""
+"""madelon.py — reproduce madelon benchmark, y=25 default"""
 import argparse
 import json
 import pathlib

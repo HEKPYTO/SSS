@@ -12,7 +12,7 @@ make ssffs                    # builds ./ssffs exactly as paper
         --criterion multinom-bhattacharyya --target-d 25 --sffs-delta 5 \
         --step-cap 100 --step-cap-backward 50 --warmup-probes 2000 --warmup-card 25 --seed 1
 
-# Python API (ponytail minimal port, same PRNG/splits as C++)
+# Python API (same PRNG/splits as C++)
 python3 -c "from src.sss.prng import ss_srand, ss_rand; ss_srand(1); print([ss_rand() for _ in range(5)])"
 # → [41, 18467, 6334, 26500, 19169]
 

@@ -116,7 +116,7 @@ def sffs_search(
 
 
 class SFFS:
-    """Stochastic SFFS (sSFFS) with budgeted steps. Ponytail defaults y=100/50."""
+    """Stochastic SFFS (sSFFS) with budgeted steps. Defaults y=100/50."""
 
     def __init__(
         self,

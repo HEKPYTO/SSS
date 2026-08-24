@@ -52,7 +52,7 @@ class WrapperKnn:
             return False, 0.0
         feats = sorted(feats)
         self.feats = feats
-        # ponytail: sklearn brute KNN for speed, exact tie handling via _evaluate_exact if k>1 tie at threshold matters
+        # fast brute KNN for speed, fallback to exact tie handling if needed
         try:
             from sklearn.neighbors import KNeighborsClassifier
 
