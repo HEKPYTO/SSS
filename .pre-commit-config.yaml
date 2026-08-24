@@ -1,0 +1,36 @@
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: trailing-whitespace
+        exclude: ^anc/
+      - id: end-of-file-fixer
+        exclude: ^anc/
+      - id: check-yaml
+        args: [--allow-multiple-documents]
+      - id: check-added-large-files
+        args: [--maxkb=4096]
+        exclude: ^anc/data/
+      - id: check-merge-conflict
+      - id: check-json
+      - id: debug-statements
+      - id: mixed-line-ending
+        args: [--fix=lf]
+        exclude: ^anc/
+
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.16.4
+    hooks:
+      - id: ruff
+        args: [--fix]
+        exclude: ^anc/
+      - id: ruff-format
+        exclude: ^anc/
+
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.18.2
+    hooks:
+      - id: mypy
+        additional_dependencies: [numpy, scikit-learn]
+        args: [--ignore-missing-imports]
+        exclude: ^(tests/|scripts/|notebooks/|anc/)

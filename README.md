@@ -16,7 +16,13 @@ make ssffs                    # builds ./ssffs exactly as paper
 python3 -c "from src.sss.prng import ss_srand, ss_rand; ss_srand(1); print([ss_rand() for _ in range(5)])"
 # → [41, 18467, 6334, 26500, 19169]
 
-pytest -v                     # runs vendoring + PRNG + ARFF checks
+# Development
+make dev                      # pip install -e .[dev] + pre-commit hooks
+make lint                     # ruff check + format --check
+make typecheck                # mypy src
+make check                    # lint + typecheck + test
+make test                     # pytest (builds ssffs)
+pre-commit run --all-files    # run hooks on all files
 ```
 
 ## Layout
