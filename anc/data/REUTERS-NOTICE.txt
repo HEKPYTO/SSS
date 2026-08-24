@@ -1,0 +1,30 @@
+reuters_apte.arff.gz — the reuters dataset of the paper's experiments
+======================================================================
+
+This is a derived representation of the Reuters-21578 text categorization
+test collection, Distribution 1.0, "Apte" (ModApte) split, compiled by
+David D. Lewis. Current location of the original collection:
+
+    https://www.daviddlewis.com/resources/testcollections/reuters21578/
+
+Copyright and terms (they travel with every copy of this file):
+
+    The copyright for the text of the newswire articles and Reuters
+    annotations in the Reuters-21578 collection resides with Reuters Ltd.
+    Reuters Ltd. and Carnegie Group, Inc. have agreed to allow the free
+    distribution of this data FOR RESEARCH PURPOSES ONLY. Publications
+    based on it should acknowledge its use, refer to the collection by
+    the name "Reuters-21578, Distribution 1.0", and inform readers of
+    its current location.
+
+THIS RESTRICTION IS NARROWER THAN THE LICENSES OF THE OTHER ACCOMPANYING
+FILES: this data file is for research use only.
+
+Modification: the collection is converted to a sparse ARFF term-frequency
+matrix — 8941 documents, 10105 numeric term features, 33 categories. The
+representation is ANONYMIZED: attributes are named a1..a10105 and classes
+cls0..cls32, so neither the vocabulary nor the category labels are part
+of the file and no article text can be reconstructed from it.
+
+sha256 of the uncompressed reuters_apte.arff:
+    4b22e0e94f53993595f5fa80c7eca0b5dbda0ec80423ac2e31861e156ea1834a
