@@ -1,0 +1,19 @@
+[project]
+name = "sss"
+version = "0.1.0"
+description = "Stochastic Sequential Search (sSFFS) — budgeted feature selection for 10k-dims, port of arXiv:2608.01502 ssffs.cpp"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = ["numpy", "scikit-learn"]
+[project.optional-dependencies]
+dev = ["pytest", "ruff"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.ruff]
+line-length = 100
