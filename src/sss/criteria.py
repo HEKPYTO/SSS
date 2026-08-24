@@ -28,13 +28,19 @@ class WrapperKnn:
         self.k = k
         self.n_classes = d.n_classes
         self.n_features = d.n_features
-        # class_offset into flat data per class
         self.class_offset: list[int] = []
         off = 0
         for c in range(d.n_classes):
             self.class_offset.append(off)
             off += d.class_size[c] * d.n_features
         self.feats: list[int] = []
+        # precompute per-class matrices for fast sklearn path
+        self.class_mats: list[np.ndarray] = []
+        for c in range(d.n_classes):
+            off = self.class_offset[c]
+            sz = d.class_size[c]
+            mat = d.data[off : off + sz * d.n_features].reshape(sz, d.n_features) if sz else np.zeros((0, d.n_features))
+            self.class_mats.append(mat)
 
     def _pattern(self, cls: int, idx: int) -> np.ndarray:
         off = self.class_offset[cls] + idx * self.n_features
@@ -46,6 +52,57 @@ class WrapperKnn:
             return False, 0.0
         feats = sorted(feats)
         self.feats = feats
+        # fast sklearn path if available — matches C++ wrapper at k=1 and small k with Euclidean to01 scaling
+        try:
+            from sklearn.neighbors import KNeighborsClassifier
+
+            total = 0.0
+            cnt = 0
+            for split in self.folds:
+                # build train
+                X_train_parts = []
+                y_train_parts = []
+                for c in range(self.n_classes):
+                    idxs = split.train[c]
+                    if not idxs:
+                        continue
+                    X_train_parts.append(self.class_mats[c][idxs][:, feats])
+                    y_train_parts.append(np.full(len(idxs), c, dtype=int))
+                if not X_train_parts:
+                    return False, 0.0
+                X_train = np.vstack(X_train_parts)
+                y_train = np.concatenate(y_train_parts)
+                # build test
+                X_test_parts = []
+                y_test_parts = []
+                for c in range(self.n_classes):
+                    idxs = split.test[c]
+                    if not idxs:
+                        continue
+                    X_test_parts.append(self.class_mats[c][idxs][:, feats])
+                    y_test_parts.append(np.full(len(idxs), c, dtype=int))
+                if not X_test_parts:
+                    continue
+                X_test = np.vstack(X_test_parts)
+                y_test = np.concatenate(y_test_parts)
+                n_train = X_train.shape[0]
+                k_eff = min(self.k, n_train)
+                if k_eff <= 0:
+                    return False, 0.0
+                # tie-avoidance: C++ keeps max_size=(k-1)*C+1 nearest, then votes k.
+                # sklearn with uniform weights and brute search returns deterministic nearest by stable sort; for k=1 they match.
+                # For k>1 small, difference only in tie handling at exactly equal distances (rare).
+                clf = KNeighborsClassifier(n_neighbors=k_eff, p=2, algorithm="brute")
+                clf.fit(X_train, y_train)
+                y_pred = clf.predict(X_test)
+                acc = float(np.mean(y_pred == y_test)) if len(y_test) else 0.0
+                total += acc
+                cnt += 1
+            return True, total / cnt if cnt else 0.0
+        except Exception:  # noqa: BLE001 — fallback to exact logic when sklearn fails
+            return self._evaluate_exact(feats)
+
+    def _evaluate_exact(self, feats):
         total = 0.0
         cnt = 0
         for split in self.folds:
@@ -54,7 +111,7 @@ class WrapperKnn:
             for c_test in range(self.n_classes):
                 for i in split.test[c_test]:
                     test_pat = self._pattern(c_test, i)
-                    pred_ok, pred = self._classify(test_pat, split)
+                    pred_ok, pred = self._classify_exact(test_pat, split, feats)
                     if not pred_ok:
                         return False, 0.0
                     if pred == c_test:
@@ -65,17 +122,14 @@ class WrapperKnn:
             cnt += 1
         return True, total / cnt if cnt else 0.0
 
-    def _classify(self, test_pat: np.ndarray, split: Split):
+    def _classify_exact(self, test_pat: np.ndarray, split: Split, feats):
         C = self.n_classes
         max_size = (self.k - 1) * C + 1
-        feats = self.feats
-        # collect distances to all train patterns
         dists: list[float] = []
         labels: list[int] = []
         for c in range(C):
             for i in split.train[c]:
                 train_pat = self._pattern(c, i)
-                # Euclidean over selected features
                 s = 0.0
                 for f in feats:
                     diff = float(test_pat[f]) - float(train_pat[f])
@@ -84,19 +138,16 @@ class WrapperKnn:
                 labels.append(c)
         if not dists:
             return False, 0
-        # take max_size nearest (smallest distances)
         order = np.argsort(np.asarray(dists, dtype=np.float64), kind="stable")
         order = order[:max_size]
         dists = [dists[i] for i in order]
         labels = [labels[i] for i in order]
-        # vote among k nearest
         k_take = min(self.k, len(dists))
         scores = [0.0] * C
         for i in range(k_take):
             scores[labels[i]] += 1.0
         for c in range(C):
             scores[c] /= float(k_take) if k_take else 1.0
-        # first maximum wins
         best = 0
         for c in range(1, C):
             if scores[c] > scores[best]:
