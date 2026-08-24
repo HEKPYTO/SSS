@@ -1,9 +1,12 @@
 """weighter.py — Online dependency-aware statistics, verbatim ssffs.cpp:638-705"""
+
 from __future__ import annotations
 
 import math
+from typing import TYPE_CHECKING
 
-from .subset import Subset
+if TYPE_CHECKING:
+    from .subset import Subset
 
 
 class Weighter:
@@ -17,7 +20,9 @@ class Weighter:
 
     def reset(self, n: int):
         self.n = n
-        self._fs = [{"m_is": 0.0, "m_isnot": 0.0, "v_is": 0.0, "n_is": 0, "n_isnot": 0} for _ in range(n)]
+        self._fs = [
+            {"m_is": 0.0, "m_isnot": 0.0, "v_is": 0.0, "n_is": 0, "n_isnot": 0} for _ in range(n)
+        ]
         self._mark = [0] * n
         self._batch.clear()
         self.frozen = False

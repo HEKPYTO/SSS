@@ -6,10 +6,11 @@ readme = "README.md"
 requires-python = ">=3.11"
 dependencies = ["numpy", "scikit-learn"]
 [project.optional-dependencies]
-dev = ["pytest", "ruff"]
+dev = ["pytest", "ruff", "mypy"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+addopts = "-q"
 
 [build-system]
 requires = ["hatchling"]
@@ -17,3 +18,46 @@ build-backend = "hatchling.build"
 
 [tool.ruff]
 line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "S", "B", "SIM", "ARG", "BLE", "RUF"]
+ignore = ["D", "S101", "S603", "S607", "S108", "E501"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+
+[tool.mypy]
+python_version = "3.12"
+warn_return_any = true
+warn_unused_configs = true
+warn_unused_ignores = true
+disallow_untyped_defs = false
+check_untyped_defs = false
+no_implicit_optional = true
+strict_optional = true
+show_error_codes = true
+ignore_missing_imports = true
+follow_imports = "skip"
+disable_error_code = ["var-annotated", "arg-type", "operator", "assignment", "attr-defined", "no-redef"]
+
+[[tool.mypy.overrides]]
+module = "numpy.*"
+ignore_errors = true
+
+[[tool.mypy.overrides]]
+module = "sklearn.*"
+ignore_errors = true
+
+[[tool.mypy.overrides]]
+module = "tests.*"
+ignore_errors = true
+
+[[tool.mypy.overrides]]
+module = "scripts.*"
+ignore_errors = true
+
+[[tool.mypy.overrides]]
+module = "notebooks.*"
+ignore_errors = true

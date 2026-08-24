@@ -1,6 +1,6 @@
 def test_weighter_zcontrast_and_horizon():
-    from src.sss.weighter import Weighter
     from src.sss.subset import Subset
+    from src.sss.weighter import Weighter
 
     w = Weighter(horizon=100)
     w.reset(5)
@@ -40,8 +40,8 @@ def test_weighter_zcontrast_and_horizon():
 
 
 def test_weighter_horizon_forgetting():
-    from src.sss.weighter import Weighter
     from src.sss.subset import Subset
+    from src.sss.weighter import Weighter
 
     w = Weighter(horizon=2)
     w.reset(2)
@@ -49,7 +49,7 @@ def test_weighter_horizon_forgetting():
     s0.deselect_all()
     s0.select_raw(0)
     # add many batches where f0 always present with increasing z
-    for i in range(5):
+    for _ in range(5):
         # create batch of 2: values 0 and 2 => z -1,1 ; but we will add single entry per flush to simplify horizon test
         # Actually each flush with single entry degenerates -> z=0, not useful. Use 2-entry batches
         pass

@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """gisette.py — 5k-d benchmark, y=10 default"""
+
 import argparse
 import json
 import pathlib
@@ -24,20 +25,44 @@ def main(argv=None):
     args = ap.parse_args(argv)
 
     if args.synthetic:
-        X, y = make_classification(n_samples=200, n_features=100, n_informative=20, n_redundant=20, random_state=args.seed)
+        X, y = make_classification(
+            n_samples=200, n_features=100, n_informative=20, n_redundant=20, random_state=args.seed
+        )
     else:
         try:
             from src.sss.arff import load_arff
 
             _ = load_arff("anc/data/gisette.arff")
-            X, y = make_classification(n_samples=500, n_features=5000, n_informative=100, random_state=args.seed)
+            X, y = make_classification(
+                n_samples=500, n_features=5000, n_informative=100, random_state=args.seed
+            )
         except Exception as e:  # noqa: BLE001
             print(f"real gisette not found ({e}), synthetic", file=sys.stderr)
-            X, y = make_classification(n_samples=200, n_features=100, n_informative=20, n_redundant=20, random_state=args.seed)
+            X, y = make_classification(
+                n_samples=200,
+                n_features=100,
+                n_informative=20,
+                n_redundant=20,
+                random_state=args.seed,
+            )
 
-    sffs = SFFS(y=args.y, y_back=max(1, args.y // 2), rho_u=args.rho, tau=args.tau, warmup_probes=100, warmup_card=10, delta=args.delta, seed=args.seed)
+    sffs = SFFS(
+        y=args.y,
+        y_back=max(1, args.y // 2),
+        rho_u=args.rho,
+        tau=args.tau,
+        warmup_probes=100,
+        warmup_card=10,
+        delta=args.delta,
+        seed=args.seed,
+    )
     sel = sffs.fit(X, y, d=args.target_d)
-    out = {"value": float(sffs.value_), "size": len(sel), "features": sel, "evaluations": int(sffs.evaluations_)}
+    out = {
+        "value": float(sffs.value_),
+        "size": len(sel),
+        "features": sel,
+        "evaluations": int(sffs.evaluations_),
+    }
     print(json.dumps(out))
     return 0
 

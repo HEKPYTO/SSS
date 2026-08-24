@@ -1,4 +1,5 @@
 """split.py — RR splitter + CV folds, verbatim ssffs.cpp:332-390"""
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -16,7 +17,9 @@ class Split:
         self.test = [[] for _ in range(n_classes)]
 
 
-def rr_split_class(n: int, perctrain: int, perctest: int, train: list[int], test: list[int]) -> None:
+def rr_split_class(
+    n: int, perctrain: int, perctest: int, train: list[int], test: list[int]
+) -> None:
     """Class-stratified RR(1) split, mutates train/test lists. ssffs.cpp:343-369"""
     id_empty, id_train, id_test = 0, 1, 2
     mark = [id_empty] * n

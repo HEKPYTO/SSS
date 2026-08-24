@@ -18,19 +18,21 @@ class DummyCriterion:
 
 def test_sampled_forward_respects_budget_and_floor():
     from src.sss.prng import ss_srand
+    from src.sss.sampled_step import SampledStep
     from src.sss.subset import Subset
     from src.sss.weighter import Weighter
-    from src.sss.sampled_step import SampledStep
 
     ss_srand(1)
     n = 100
     w = Weighter(horizon=100)
     w.reset(n)
     crit = DummyCriterion(n)
-    step = SampledStep(w, cap=25, cap_backward=0, cap_frac=0.0, explore=0.2, tau=0.0, sampler="softmax")
+    step = SampledStep(
+        w, cap=25, cap_backward=0, cap_frac=0.0, explore=0.2, tau=0.0, sampler="softmax"
+    )
     sub = Subset(n)
     sub.deselect_all()
-    ok, val = step.Step(True, sub, crit, io.StringIO())
+    ok, _val = step.Step(True, sub, crit, io.StringIO())
     assert ok and sub.get_d() == 1
     assert crit.count == 25
     assert w.n == n
@@ -39,16 +41,16 @@ def test_sampled_forward_respects_budget_and_floor():
     assert step.count_forward == 1
 
     # second step should also respect budget
-    ok, val = step.Step(True, sub, crit, io.StringIO())
+    ok, _val = step.Step(True, sub, crit, io.StringIO())
     assert ok and sub.get_d() == 2
     assert crit.count == 50
 
 
 def test_full_sweep_fallback():
     from src.sss.prng import ss_srand
+    from src.sss.sampled_step import SampledStep
     from src.sss.subset import Subset
     from src.sss.weighter import Weighter
-    from src.sss.sampled_step import SampledStep
 
     ss_srand(42)
     n = 10
@@ -56,7 +58,9 @@ def test_full_sweep_fallback():
     w.reset(n)
     crit = DummyCriterion(n)
     # cap larger than pool -> full sweep
-    step = SampledStep(w, cap=100, cap_backward=0, cap_frac=0.0, explore=0.2, tau=0.0, sampler="softmax")
+    step = SampledStep(
+        w, cap=100, cap_backward=0, cap_frac=0.0, explore=0.2, tau=0.0, sampler="softmax"
+    )
     sub = Subset(n)
     sub.deselect_all()
     # add 8 features so pool =2 <= cap => full sweep should evaluate pool=2 not cap
@@ -64,7 +68,7 @@ def test_full_sweep_fallback():
         sub.select_raw(f)
     pool = n - sub.get_d()
     assert pool == 2
-    ok, val = step.Step(True, sub, crit, io.StringIO())
+    ok, _val = step.Step(True, sub, crit, io.StringIO())
     assert ok
     assert crit.count == 2  # full sweep, not 100
     assert sub.get_d() == 9
@@ -74,10 +78,12 @@ def test_full_sweep_fallback():
     w2 = Weighter(horizon=100)
     w2.reset(n)
     crit2 = DummyCriterion(n)
-    step2 = SampledStep(w2, cap=0, cap_backward=0, cap_frac=0.0, explore=0.2, tau=0.0, sampler="uniform")
+    step2 = SampledStep(
+        w2, cap=0, cap_backward=0, cap_frac=0.0, explore=0.2, tau=0.0, sampler="uniform"
+    )
     sub2 = Subset(n)
     sub2.deselect_all()
-    ok, val = step2.Step(True, sub2, crit2, io.StringIO())
+    ok, _val = step2.Step(True, sub2, crit2, io.StringIO())
     assert ok
     assert crit2.count == n  # pool 10 -> full sweep 10
     assert step2.all_evals == 10
@@ -85,15 +91,15 @@ def test_full_sweep_fallback():
 
 def test_sampled_backward():
     from src.sss.prng import ss_srand
+    from src.sss.sampled_step import SampledStep
     from src.sss.subset import Subset
     from src.sss.weighter import Weighter
-    from src.sss.sampled_step import SampledStep
 
     ss_srand(7)
     n = 20
     w = Weighter(horizon=100)
     w.reset(n)
-    crit = DummyCriterion(n)
+    DummyCriterion(n)
 
     class InvertedDummy:
         # for backward, best removal is smallest index (since we invert score)
@@ -112,13 +118,15 @@ def test_sampled_backward():
             return True, float(sum(m))
 
     crit2 = InvertedDummy(n)
-    step = SampledStep(w, cap=10, cap_backward=5, cap_frac=0.0, explore=0.2, tau=1.0, sampler="softmax")
+    step = SampledStep(
+        w, cap=10, cap_backward=5, cap_frac=0.0, explore=0.2, tau=1.0, sampler="softmax"
+    )
     sub = Subset(n)
     sub.deselect_all()
     for f in range(10):
         sub.select_raw(f)
     assert sub.get_d() == 10
-    ok, val = step.Step(False, sub, crit2, io.StringIO())
+    ok, _val = step.Step(False, sub, crit2, io.StringIO())
     assert ok
     assert sub.get_d() == 9
     assert crit2.count == 5
@@ -127,9 +135,9 @@ def test_sampled_backward():
 
 def test_uniform_sampler():
     from src.sss.prng import ss_srand
+    from src.sss.sampled_step import SampledStep
     from src.sss.subset import Subset
     from src.sss.weighter import Weighter
-    from src.sss.sampled_step import SampledStep
 
     ss_srand(123)
     n = 50
@@ -139,16 +147,16 @@ def test_uniform_sampler():
     step = SampledStep(w, cap=10, cap_backward=0, explore=0.2, tau=0.0, sampler="uniform")
     sub = Subset(n)
     sub.deselect_all()
-    ok, val = step.Step(True, sub, crit, io.StringIO())
+    ok, _val = step.Step(True, sub, crit, io.StringIO())
     assert ok and sub.get_d() == 1
     assert crit.count == 10
 
 
 def test_topk_sampler():
     from src.sss.prng import ss_srand
+    from src.sss.sampled_step import SampledStep
     from src.sss.subset import Subset
     from src.sss.weighter import Weighter
-    from src.sss.sampled_step import SampledStep
 
     ss_srand(99)
     n = 30
@@ -174,7 +182,7 @@ def test_topk_sampler():
     step = SampledStep(w, cap=5, cap_backward=0, explore=0.0, tau=1.0, sampler="topk")
     sub = Subset(n)
     sub.deselect_all()
-    ok, val = step.Step(True, sub, crit, io.StringIO())
+    ok, _val = step.Step(True, sub, crit, io.StringIO())
     assert ok
     # topk should have proposed highest scoring features; with Dummy value max index, 29 is best and should be among top 5
     # Since prop is sorted descending score, and 29 has highest score, it will be in prop, and maximize v => should pick 29

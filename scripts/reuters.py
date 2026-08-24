@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """reuters.py — 10,105-d filter benchmark, ~2min single core at y=100 full frontier"""
+
 import argparse
 import json
 import pathlib
@@ -37,7 +38,12 @@ def main(argv=None):
     )
     # filter path
     sel = sffs.fit_filter(data, target_d=args.target_d, train_pct=50, test_pct=40)
-    out = {"value": float(sffs.value_), "size": len(sel), "features": sel, "evaluations": int(sffs.evaluations_)}
+    out = {
+        "value": float(sffs.value_),
+        "size": len(sel),
+        "features": sel,
+        "evaluations": int(sffs.evaluations_),
+    }
     print(json.dumps(out))
     return 0
 

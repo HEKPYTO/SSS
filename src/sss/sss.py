@@ -1,4 +1,5 @@
 """sss.py — sSFFS search + SFFS class, verbatim ssffs.cpp:983-1074 + main 1098-1208"""
+
 from __future__ import annotations
 
 import sys
@@ -42,10 +43,7 @@ def sffs_search(
     sub.deselect_all()
     d = 0
     # forward threshold
-    if target_d > 0 and delta > 0 and target_d + delta < n:
-        forward_thr = target_d + delta
-    else:
-        forward_thr = n
+    forward_thr = target_d + delta if target_d > 0 and delta > 0 and target_d + delta < n else n
 
     # per-size incumbent logic helpers
     def check_maxcrit(result, cur_sub, d_cur):
@@ -107,12 +105,16 @@ def sffs_search(
             return None
         # reconstruct features from bin
         feats = [i for i, b in enumerate(entry["bin"]) if b > 0]
-        return {"value": entry["critvalue"], "features": feats, "size": len(feats), "evaluations": crit.count}
-    else:
-        if not havemax:
-            return None
-        feats = maxcritsub.members()
-        return {"value": maxcritval, "features": feats, "size": len(feats), "evaluations": crit.count}
+        return {
+            "value": entry["critvalue"],
+            "features": feats,
+            "size": len(feats),
+            "evaluations": crit.count,
+        }
+    if not havemax:
+        return None
+    feats = maxcritsub.members()
+    return {"value": maxcritval, "features": feats, "size": len(feats), "evaluations": crit.count}
 
 
 class SFFS:
@@ -190,16 +192,35 @@ class SFFS:
         data = ArffData(n_features, n_classes, class_size, flat)
         if self.scaler == "to01":
             scale_to01(data)
-        return self._fit_arff(data, target_d=d, train_pct=50, test_pct=50, cv_folds_n=self.cv_folds_n, k=self.k)
+        return self._fit_arff(
+            data, target_d=d, train_pct=50, test_pct=50, cv_folds_n=self.cv_folds_n, k=self.k
+        )
 
-    def fit_arff(self, data: ArffData, target_d: int, train_pct: int = 50, test_pct: int = 50, cv_folds_n: int | None = None, k: int | None = None):
+    def fit_arff(
+        self,
+        data: ArffData,
+        target_d: int,
+        train_pct: int = 50,
+        test_pct: int = 50,
+        cv_folds_n: int | None = None,
+        k: int | None = None,
+    ):
         if cv_folds_n is None:
             cv_folds_n = self.cv_folds_n
         if k is None:
             k = self.k
-        return self._fit_arff(data, target_d=target_d, train_pct=train_pct, test_pct=test_pct, cv_folds_n=cv_folds_n, k=k)
+        return self._fit_arff(
+            data,
+            target_d=target_d,
+            train_pct=train_pct,
+            test_pct=test_pct,
+            cv_folds_n=cv_folds_n,
+            k=k,
+        )
 
-    def _fit_arff(self, data: ArffData, target_d: int, train_pct: int, test_pct: int, cv_folds_n: int, k: int):
+    def _fit_arff(
+        self, data: ArffData, target_d: int, train_pct: int, test_pct: int, cv_folds_n: int, k: int
+    ):
         n = data.n_features
         if target_d >= n:
             raise ValueError("--target-d must be smaller than number of features")

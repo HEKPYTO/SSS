@@ -1,4 +1,5 @@
 """app.py — Streamlit demo: upload ARFF -> frontier + selected features"""
+
 import pathlib
 import sys
 
@@ -18,12 +19,26 @@ if uploaded:
     with open(path, "wb") as f:
         f.write(uploaded.getbuffer())
     data = load_arff(path)
-    st.write(f"Loaded {data.n_features} features, {data.n_classes} classes, {sum(data.class_size)} samples")
+    st.write(
+        f"Loaded {data.n_features} features, {data.n_classes} classes, {sum(data.class_size)} samples"
+    )
     if st.button("Run sSFFS"):
         with st.spinner("Searching..."):
-            sffs = SFFS(y=y_val, y_back=max(5, y_val // 2), rho_u=0.2, tau=0.0, warmup_probes=100, warmup_card=10, delta=5, seed=1, scaler="void")
+            sffs = SFFS(
+                y=y_val,
+                y_back=max(5, y_val // 2),
+                rho_u=0.2,
+                tau=0.0,
+                warmup_probes=100,
+                warmup_card=10,
+                delta=5,
+                seed=1,
+                scaler="void",
+            )
             sel = sffs.fit_filter(data, target_d=d_val, train_pct=50, test_pct=40)
-            st.success(f"Selected {len(sel)} features, value {sffs.value_:.4f}, evals {sffs.evaluations_}")
+            st.success(
+                f"Selected {len(sel)} features, value {sffs.value_:.4f}, evals {sffs.evaluations_}"
+            )
             st.write(sel)
             # crude frontier: run for d=1..target and plot value (reuse evaluations would be heavy, so single run)
             st.line_chart({"selected": sel})

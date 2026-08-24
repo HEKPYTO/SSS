@@ -1,14 +1,18 @@
 """criteria.py — WrapperKnn + Multinomial Bhattacharyya, verbatim ssffs.cpp:426-636"""
+
 from __future__ import annotations
 
 import math
+from typing import TYPE_CHECKING
 
 import numpy as np
 
 from .arff import ArffData, scale_to01
 from .prng import ss_srand
 from .split import Split, cv_folds, rr_split_class
-from .subset import Subset
+
+if TYPE_CHECKING:
+    from .subset import Subset
 
 
 class CountingCriterion:
@@ -39,7 +43,11 @@ class WrapperKnn:
         for c in range(d.n_classes):
             off = self.class_offset[c]
             sz = d.class_size[c]
-            mat = d.data[off : off + sz * d.n_features].reshape(sz, d.n_features) if sz else np.zeros((0, d.n_features))
+            mat = (
+                d.data[off : off + sz * d.n_features].reshape(sz, d.n_features)
+                if sz
+                else np.zeros((0, d.n_features))
+            )
             self.class_mats.append(mat)
 
     def _pattern(self, cls: int, idx: int) -> np.ndarray:
@@ -205,13 +213,15 @@ class MultinomBhattacharyya:
         total_sum = 0.0
         wCV = 0
         wCd = 0
-        for c in range(self.classes):
+        for _c in range(self.classes):
             class_sum = 0.0
             for f in range(dd):
                 class_sum += float(self.Nsuminclass[wCV + int(self.index[f])])
             total_sum += class_sum
             for f in range(dd):
-                self.theta[wCd] = (1.0 + float(self.Nsuminclass[wCV + int(self.index[f])])) / (float(dd) + class_sum)
+                self.theta[wCd] = (1.0 + float(self.Nsuminclass[wCV + int(self.index[f])])) / (
+                    float(dd) + class_sum
+                )
                 wCd += 1
             wCV += self.n
         self.doc_avg_length = total_sum / self.allpatterns if self.allpatterns else 0.0
@@ -232,7 +242,12 @@ class MultinomBhattacharyya:
                     # guard log(0)
                     if thetasum <= 0:
                         thetasum = 1e-300
-                    value += (-self.doc_avg_length) * math.log(thetasum) * float(self.Pc_d[c1]) * float(self.Pc_d[c2])
+                    value += (
+                        (-self.doc_avg_length)
+                        * math.log(thetasum)
+                        * float(self.Pc_d[c1])
+                        * float(self.Pc_d[c2])
+                    )
                     combs += 1
                     wCV2 += self.n
                 wCV1 += self.n
@@ -310,10 +325,7 @@ def make_wrapper_knn(
     outer = Split(n_classes)
     for c in range(n_classes):
         rr_split_class(class_size[c], train_pct, test_pct, outer.train[c], outer.test[c])
-    if cv and cv > 1:
-        folds = cv_folds(outer, cv, n_classes)
-    else:
-        folds = [outer]
+    folds = cv_folds(outer, cv, n_classes) if cv and cv > 1 else [outer]
     inner = WrapperKnn(d, folds, k)
     return CountingCriterion(inner)
 
