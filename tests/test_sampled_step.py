@@ -17,10 +17,10 @@ class DummyCriterion:
 
 
 def test_sampled_forward_respects_budget_and_floor():
-    from src.sss.prng import ss_srand
-    from src.sss.sampled_step import SampledStep
-    from src.sss.subset import Subset
-    from src.sss.weighter import Weighter
+    from sss.prng import ss_srand
+    from sss.sampled_step import SampledStep
+    from sss.subset import Subset
+    from sss.weighter import Weighter
 
     ss_srand(1)
     n = 100
@@ -47,10 +47,10 @@ def test_sampled_forward_respects_budget_and_floor():
 
 
 def test_full_sweep_fallback():
-    from src.sss.prng import ss_srand
-    from src.sss.sampled_step import SampledStep
-    from src.sss.subset import Subset
-    from src.sss.weighter import Weighter
+    from sss.prng import ss_srand
+    from sss.sampled_step import SampledStep
+    from sss.subset import Subset
+    from sss.weighter import Weighter
 
     ss_srand(42)
     n = 10
@@ -90,10 +90,10 @@ def test_full_sweep_fallback():
 
 
 def test_sampled_backward():
-    from src.sss.prng import ss_srand
-    from src.sss.sampled_step import SampledStep
-    from src.sss.subset import Subset
-    from src.sss.weighter import Weighter
+    from sss.prng import ss_srand
+    from sss.sampled_step import SampledStep
+    from sss.subset import Subset
+    from sss.weighter import Weighter
 
     ss_srand(7)
     n = 20
@@ -134,10 +134,10 @@ def test_sampled_backward():
 
 
 def test_uniform_sampler():
-    from src.sss.prng import ss_srand
-    from src.sss.sampled_step import SampledStep
-    from src.sss.subset import Subset
-    from src.sss.weighter import Weighter
+    from sss.prng import ss_srand
+    from sss.sampled_step import SampledStep
+    from sss.subset import Subset
+    from sss.weighter import Weighter
 
     ss_srand(123)
     n = 50
@@ -153,17 +153,17 @@ def test_uniform_sampler():
 
 
 def test_topk_sampler():
-    from src.sss.prng import ss_srand
-    from src.sss.sampled_step import SampledStep
-    from src.sss.subset import Subset
-    from src.sss.weighter import Weighter
+    from sss.prng import ss_srand
+    from sss.sampled_step import SampledStep
+    from sss.subset import Subset
+    from sss.weighter import Weighter
 
     ss_srand(99)
     n = 30
     w = Weighter(horizon=100)
     w.reset(n)
     # give scores: feature 29 highest
-    from src.sss.subset import Subset as S
+    from sss.subset import Subset as S
 
     # need to populate stats so topk picks highest: add evaluations where subsets containing 29 have high value
     # simple: do a flush with known values
@@ -190,10 +190,10 @@ def test_topk_sampler():
 
 
 def test_softmax_consumes_rng_after_weight_underflow():
-    from src.sss.prng import ss_rand, ss_srand
-    from src.sss.sampled_step import SampledStep
-    from src.sss.subset import Subset
-    from src.sss.weighter import Weighter
+    from sss.prng import ss_rand, ss_srand
+    from sss.sampled_step import SampledStep
+    from sss.subset import Subset
+    from sss.weighter import Weighter
 
     class Criterion:
         def evaluate(self, sub):

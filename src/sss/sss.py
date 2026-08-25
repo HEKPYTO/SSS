@@ -60,7 +60,8 @@ def sffs_search(
         ):
             maximum = (value, members)
             _emit_solution(stream, value, sub)
-        if incumbents[size - 1] is None or value > incumbents[size - 1][0]:
+        incumbent = incumbents[size - 1]
+        if incumbent is None or value > incumbent[0]:
             incumbents[size - 1] = (value, members)
             _emit_solution(stream, value, sub)
         pivot.copy_members_from(sub)
@@ -78,10 +79,11 @@ def sffs_search(
             ):
                 maximum = (value, members)
                 _emit_solution(stream, value, sub)
-            if incumbents[size - 1] is None:
+            incumbent = incumbents[size - 1]
+            if incumbent is None:
                 incumbents[size - 1] = (value, members)
                 _emit_solution(stream, value, sub)
-            elif value > incumbents[size - 1][0]:
+            elif value > incumbent[0]:
                 incumbents[size - 1] = (value, members)
                 pivot.copy_members_from(sub)
                 _emit_solution(stream, value, sub)
@@ -150,7 +152,7 @@ def _run(
         folds = (
             cv_folds(outer, cv_folds_count, working.n_classes) if cv_folds_count > 1 else [outer]
         )
-        inner = WrapperKnn(working, folds, knn_k)
+        inner: WrapperKnn | MultinomBhattacharyya = WrapperKnn(working, folds, knn_k)
     else:
         inner = MultinomBhattacharyya(working, outer.train)
     criterion = CountingCriterion(inner)

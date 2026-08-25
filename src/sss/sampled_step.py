@@ -66,7 +66,7 @@ class SampledStep:
 
     def _full_sweep(self, sub: Subset, crit, pool: int, os):
         forward = sub.forward
-        bestval = None
+        bestval = 0.0
         order = 0
         cnt = 0
         bestf = None
@@ -142,12 +142,12 @@ class SampledStep:
                 # tau
                 t = self.tau
                 if t <= 0:
-                    tmp = sorted(sc)
-                    if tmp:
-                        q1 = len(tmp) // 4
-                        q3 = (3 * len(tmp)) // 4
-                        a = tmp[q1]
-                        b = tmp[q3]
+                    scores = sorted(sc)
+                    if scores:
+                        q1 = len(scores) // 4
+                        q3 = (3 * len(scores)) // 4
+                        a = scores[q1]
+                        b = scores[q3]
                         t = (b - a) / 1.349
                         if not (t > 1e-9):
                             t = 1e-9
@@ -180,9 +180,9 @@ class SampledStep:
                         if pick is None:
                             # underflow guard -> argmax (C++ complete-underflow)
                             best = None
-                            best_sc = None
+                            best_sc: float | None = None
                             for i in range(len(sc)):
-                                if w[i] >= 0 and (best is None or sc[i] > best_sc):
+                                if w[i] >= 0 and (best_sc is None or sc[i] > best_sc):
                                     best = i
                                     best_sc = sc[i]
                             pick = best
@@ -193,7 +193,7 @@ class SampledStep:
                             W -= w[pick]
                         w[pick] = -1.0
         # evaluate batch
-        bestval = None
+        bestval = 0.0
         bestf = None
         order = 0
         cnt = 0
@@ -254,12 +254,12 @@ class SampledStep:
                 sc = [self.stats.score(f) for f in cand]
                 t = self.tau
                 if t <= 0:
-                    tmp = sorted(sc)
-                    if tmp:
-                        q1 = len(tmp) // 4
-                        q3 = (3 * len(tmp)) // 4
-                        a = tmp[q1]
-                        b = tmp[q3]
+                    scores = sorted(sc)
+                    if scores:
+                        q1 = len(scores) // 4
+                        q3 = (3 * len(scores)) // 4
+                        a = scores[q1]
+                        b = scores[q3]
                         t = (b - a) / 1.349
                         if not (t > 1e-9):
                             t = 1e-9
@@ -287,9 +287,9 @@ class SampledStep:
                                     break
                         if pick is None:
                             best = None
-                            best_sc = None
+                            best_sc: float | None = None
                             for i in range(len(sc)):
-                                if w[i] >= 0 and (best is None or sc[i] < best_sc):
+                                if w[i] >= 0 and (best_sc is None or sc[i] < best_sc):
                                     best = i
                                     best_sc = sc[i]
                             pick = best
@@ -300,7 +300,7 @@ class SampledStep:
                             W -= w[pick]
                         w[pick] = -1.0
         # evaluate
-        bestval = None
+        bestval = 0.0
         bestf = None
         order = 0
         cnt = 0

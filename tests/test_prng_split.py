@@ -1,5 +1,5 @@
 def test_prng_sequence():
-    from src.sss.prng import ss_rand, ss_srand
+    from sss.prng import ss_rand, ss_srand
 
     ss_srand(1)
     first5 = [ss_rand() for _ in range(5)]
@@ -7,7 +7,7 @@ def test_prng_sequence():
 
 
 def test_arff_sparse_reuters():
-    from src.sss.arff import load_arff
+    from sss.arff import load_arff
 
     d = load_arff("anc/data/reuters_apte.arff")
     assert d.n_features == 10105
@@ -31,7 +31,7 @@ def test_arff_dense_roundtrip(tmp_path):
 3.0,4.0,c1
 5.0,6.0,c0
 """)
-    from src.sss.arff import load_arff
+    from sss.arff import load_arff
 
     d = load_arff(str(p))
     assert d.n_features == 2
@@ -49,7 +49,7 @@ def test_arff_dense_roundtrip(tmp_path):
 def test_scaler_to01():
     import numpy as np
 
-    from src.sss.arff import ArffData, scale_to01
+    from sss.arff import ArffData, scale_to01
 
     # 2 features, 2 samples class-major
     data = np.array([0.0, 10.0, 10.0, 20.0], dtype=np.float64)
@@ -60,8 +60,8 @@ def test_scaler_to01():
 
 
 def test_rr_split_counts():
-    from src.sss.prng import ss_srand
-    from src.sss.split import rr_split_class
+    from sss.prng import ss_srand
+    from sss.split import rr_split_class
 
     ss_srand(1)
     train, test = [], []
@@ -76,8 +76,8 @@ def test_rr_split_counts():
 
 
 def test_rr_split_deterministic():
-    from src.sss.prng import ss_srand
-    from src.sss.split import rr_split_class
+    from sss.prng import ss_srand
+    from sss.split import rr_split_class
 
     ss_srand(123)
     t1, e1 = [], []
@@ -89,7 +89,7 @@ def test_rr_split_deterministic():
 
 
 def test_cv_folds():
-    from src.sss.split import Split, cv_folds
+    from sss.split import Split, cv_folds
 
     outer = Split(2)
     outer.train = [[0, 1, 2, 3, 4], [10, 11, 12]]
@@ -106,8 +106,8 @@ def test_cv_folds():
 
 
 def test_subset_random_and_members():
-    from src.sss.prng import ss_srand
-    from src.sss.subset import Subset
+    from sss.prng import ss_srand
+    from sss.subset import Subset
 
     ss_srand(1)
     s = Subset(500)
@@ -133,7 +133,7 @@ def test_subset_random_and_members():
 
 
 def test_subset_forward_backward_inversion():
-    from src.sss.subset import Subset
+    from sss.subset import Subset
 
     s = Subset(5)
     s.deselect_all()

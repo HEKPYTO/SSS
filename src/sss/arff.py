@@ -284,7 +284,7 @@ def load_arff(path: str) -> ArffData:
             _die("record with invalid class id")
         class_size[cls] += 1
     total = len(records)
-    flat = np.zeros(total * n_features, dtype=np.float64)
+    flat: np.ndarray = np.zeros(total * n_features, dtype=np.float64)
     idx = 0
     for c in range(n_classes):
         for feat, cls in records:
@@ -298,7 +298,7 @@ def load_arff(path: str) -> ArffData:
 def scale_to01(d: ArffData) -> None:
     samples = sum(d.class_size)
     n = d.n_features
-    flat = d.data
+    flat: np.ndarray = d.data
     for f in range(n):
         mn = mx = 0.0
         first = True
