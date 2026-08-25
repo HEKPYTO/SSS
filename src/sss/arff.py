@@ -17,7 +17,7 @@ class ArffData:
 
 
 def _die(msg: str):
-    raise RuntimeError(f"ssffs: {msg}")
+    raise ValueError(f"ssffs: {msg}")
 
 
 def _upper(s: str) -> str:
@@ -99,11 +99,8 @@ def load_arff(path: str) -> ArffData:
             rec_feat = [0.0] * n_features
             cls_holder = [-1]
             if t.startswith("{"):
-                # sparse
                 if not t.endswith("}"):
-                    # handle multiline? ssffs.cpp handles via arff_read_line merging; our splitlines already handles single line sparse rows which are fully contained. For safety, treat as error if not closed.
-                    # But reuters sparse rows are single line.
-                    pass
+                    _die("unterminated sparse data row")
                 inner = t[1:-1].strip()
                 if inner:
                     # split by commas not inside quotes

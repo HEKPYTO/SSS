@@ -30,11 +30,11 @@ def test_weighter_zcontrast_and_horizon():
     w.freeze()
     assert w.frozen
     prev_score = w.score(0)
-    prev_n = w.n_is(0)
+    prev_n = w.count_is(0)
     w.add(10.0, s0)
     w.flush_batch()
     assert w.score(0) == prev_score
-    assert w.n_is(0) == prev_n
+    assert w.count_is(0) == prev_n
     # batch cleared while frozen
     assert len(w._batch) == 0
 
@@ -48,13 +48,6 @@ def test_weighter_horizon_forgetting():
     s0 = Subset(2)
     s0.deselect_all()
     s0.select_raw(0)
-    # add many batches where f0 always present with increasing z
-    for _ in range(5):
-        # create batch of 2: values 0 and 2 => z -1,1 ; but we will add single entry per flush to simplify horizon test
-        # Actually each flush with single entry degenerates -> z=0, not useful. Use 2-entry batches
-        pass
-    # instead test that horizon caps rate at 1/2 after 2 updates
-    # Batch1: f0 present vs absent
     s1 = Subset(2)
     s1.deselect_all()
     s1.select_raw(1)
