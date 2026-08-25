@@ -1,10 +1,30 @@
 [project]
-name = "sss"
+name = "stochastic-sequential-search"
 version = "0.1.0"
-description = "Stochastic Sequential Search (sSFFS) — budgeted feature selection for 10k-dims, port of arXiv:2608.01502 ssffs.cpp"
+description = "Faithful Python implementation of stochastic sequential forward floating search"
 readme = "README.md"
 requires-python = ">=3.11"
-dependencies = ["numpy", "scikit-learn"]
+license = "MIT"
+authors = [{ name = "HE KYPTO", email = "zoonyanapat@gmail.com" }]
+keywords = ["feature selection", "sSFFS", "stochastic search"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+]
+dependencies = ["numpy"]
+
+[project.urls]
+Repository = "https://github.com/HE-KYPTO/stochastic-sequential-search"
+Paper = "https://doi.org/10.48550/arXiv.2608.01502"
+
+[project.scripts]
+sss = "sss.cli:main"
 [project.optional-dependencies]
 dev = ["pytest", "ruff", "mypy"]
 
@@ -15,6 +35,9 @@ addopts = "-q"
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/sss"]
 
 [tool.ruff]
 line-length = 100
@@ -29,7 +52,7 @@ quote-style = "double"
 indent-style = "space"
 
 [tool.mypy]
-python_version = "3.12"
+python_version = "3.11"
 warn_return_any = true
 warn_unused_configs = true
 warn_unused_ignores = true
@@ -39,25 +62,7 @@ no_implicit_optional = true
 strict_optional = true
 show_error_codes = true
 ignore_missing_imports = true
-follow_imports = "skip"
-disable_error_code = ["var-annotated", "arg-type", "operator", "assignment", "attr-defined", "no-redef"]
 
 [[tool.mypy.overrides]]
 module = "numpy.*"
-ignore_errors = true
-
-[[tool.mypy.overrides]]
-module = "sklearn.*"
-ignore_errors = true
-
-[[tool.mypy.overrides]]
-module = "tests.*"
-ignore_errors = true
-
-[[tool.mypy.overrides]]
-module = "scripts.*"
-ignore_errors = true
-
-[[tool.mypy.overrides]]
-module = "notebooks.*"
 ignore_errors = true
