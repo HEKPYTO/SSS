@@ -80,3 +80,44 @@ def test_invalid_configuration_raises_value_error(kwargs):
 
     with pytest.raises(ValueError):
         SFFS(**kwargs)
+
+
+@pytest.mark.parametrize(
+    "kwargs",
+    [
+        {"forward_budget": -1},
+        {"backward_budget": -1},
+        {"exploration": 2.0},
+        {"horizon": 0},
+        {"warmup_probes": -1},
+        {"warmup_size": 0},
+        {"frontier_delta": -1},
+        {"cap_fraction": 2.0},
+        {"sampler": "bad"},
+    ],
+)
+def test_runner_rejects_invalid_sampled_step_configuration(kwargs):
+    from sss.arff import ArffData
+    from sss.sss import _run
+
+    settings = {
+        "target_size": 1,
+        "criterion_name": "multinom-bhattacharyya",
+        "forward_budget": 1,
+        "backward_budget": 0,
+        "exploration": 0.2,
+        "temperature": None,
+        "horizon": 1,
+        "warmup_probes": 0,
+        "warmup_size": 1,
+        "frontier_delta": 0,
+        "seed": 1,
+        "train_percent": 50,
+        "test_percent": 50,
+        "cv_folds_count": 0,
+        "knn_k": 1,
+        "scale": False,
+    }
+    settings.update(kwargs)
+    with pytest.raises(ValueError):
+        _run(ArffData(2, 2, [1, 1], np.array([0.0, 0.0, 1.0, 1.0])), **settings)

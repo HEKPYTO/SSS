@@ -82,7 +82,3 @@ class Weighter:
 
     def count_isnot(self, f: int) -> int:
         return int(self._fs[f]["n_isnot"])
-
-    # alias for test expectation n_is
-    def n_is(self, f: int) -> int:
-        return self.count_is(f)

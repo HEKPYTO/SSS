@@ -7,9 +7,8 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 
-from .arff import ArffData, scale_to01
-from .prng import ss_srand
-from .split import Split, cv_folds, rr_split_class
+from .arff import ArffData
+from .split import Split
 
 if TYPE_CHECKING:
     from .subset import Subset
@@ -225,52 +224,3 @@ class MultinomBhattacharyya:
                 value += math.log(thetasum) * float(self.Pc[c1]) * float(self.Pc[c2])
         result = (-self.doc_avg_length) * value
         return True, float(result)
-
-
-def make_wrapper_knn(
-    X: np.ndarray,
-    y: np.ndarray,
-    k: int = 1,
-    cv: int = 3,
-    seed: int = 1,
-    train_pct: int = 50,
-    test_pct: int = 50,
-    scale: bool = True,
-):
-    """Helper for synthetic numpy arrays -> WrapperKnn with RR splits."""
-    X = np.asarray(X, dtype=np.float64)
-    y = np.asarray(y)
-    classes = np.unique(y)
-    # map labels to 0..C-1 if not already
-    label_to_idx = {lab: i for i, lab in enumerate(sorted(classes))}
-    y_idx = np.array([label_to_idx[v] for v in y], dtype=int)
-    n_classes = len(classes)
-    n_features = X.shape[1]
-    # class_size and class-major data
-    class_size = [int(np.sum(y_idx == c)) for c in range(n_classes)]
-    total = X.shape[0]
-    flat = np.zeros(total * n_features, dtype=np.float64)
-    idx = 0
-    for c in range(n_classes):
-        rows = X[y_idx == c]
-        for r in rows:
-            # widen via float32 as in ARFF
-            row_f32 = r.astype(np.float32).astype(np.float64)
-            for ff in range(n_features):
-                flat[idx] = float(row_f32[ff])
-                idx += 1
-    d = ArffData(n_features, n_classes, class_size, flat)
-    if scale:
-        scale_to01(d)
-    ss_srand(seed)
-    outer = Split(n_classes)
-    for c in range(n_classes):
-        rr_split_class(class_size[c], train_pct, test_pct, outer.train[c], outer.test[c])
-    folds = cv_folds(outer, cv, n_classes) if cv and cv > 1 else [outer]
-    inner = WrapperKnn(d, folds, k)
-    return CountingCriterion(inner)
-
-
-def make_multinom_from_arff(d: ArffData, outer_train: list[list[int]]):
-    inner = MultinomBhattacharyya(d, outer_train)
-    return CountingCriterion(inner)

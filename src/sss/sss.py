@@ -127,6 +127,16 @@ def _run(
     frozen: bool = False,
     stream: TextIO | None = None,
 ) -> Result:
+    if forward_budget < 0 or backward_budget < 0:
+        raise ValueError("budgets must be non-negative")
+    if not 0 <= exploration <= 1:
+        raise ValueError("exploration must be in 0..1")
+    if horizon < 1 or warmup_probes < 0 or warmup_size < 1 or frontier_delta < 0:
+        raise ValueError("invalid sampled-step configuration")
+    if not 0 <= cap_fraction <= 1:
+        raise ValueError("cap fraction must be in 0..1")
+    if sampler not in {"softmax", "uniform", "topk"}:
+        raise ValueError("unsupported sampler")
     if target_size < 0 or target_size >= data.n_features:
         raise ValueError("target_size must be smaller than the number of features")
     if criterion_name not in {"wrapper-knn", "multinom-bhattacharyya"}:

@@ -46,6 +46,19 @@ def test_arff_dense_roundtrip(tmp_path):
     assert np.allclose(d.data[4:6], [3.0, 4.0])
 
 
+def test_arff_rejects_unterminated_sparse_row(tmp_path):
+    from sss.arff import load_arff
+
+    path = tmp_path / "unterminated.arff"
+    path.write_text(
+        "@RELATION tiny\n@ATTRIBUTE x NUMERIC\n@ATTRIBUTE class {a,b}\n@DATA\n{0 1, 1 a\n"
+    )
+    import pytest
+
+    with pytest.raises(ValueError, match="unterminated sparse data row"):
+        load_arff(str(path))
+
+
 def test_scaler_to01():
     import numpy as np
 

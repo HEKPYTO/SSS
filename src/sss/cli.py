@@ -46,7 +46,7 @@ def main(argv: list[str] | None = None) -> int:
             forward_budget=args.step_cap,
             backward_budget=args.step_cap_backward,
             exploration=args.step_explore,
-            temperature=None if args.step_tau == 0 else args.step_tau,
+            temperature=None if args.step_tau <= 0 else args.step_tau,
             horizon=args.step_decay,
             warmup_probes=args.warmup_probes,
             warmup_size=args.warmup_card,
