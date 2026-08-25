@@ -227,7 +227,12 @@ class SFFS:
 
     def fit(self, X: np.ndarray, y: np.ndarray, *, target_size: int) -> Result:
         features, labels = np.asarray(X, dtype=np.float64), np.asarray(y)
-        if features.ndim != 2 or not len(features) or len(labels) != len(features):
+        if (
+            features.ndim != 2
+            or labels.ndim != 1
+            or not len(features)
+            or len(labels) != len(features)
+        ):
             raise ValueError("X must be a non-empty 2D array and y must have matching length")
         classes, encoded = np.unique(labels, return_inverse=True)
         if len(classes) < 2:

@@ -117,7 +117,11 @@ class SampledStep:
             u = int(self.explore * want + 0.5) if self.sampler != "uniform" else want
             u = min(u, want)
             if u > 0:
-                bycnt = sorted(freef, key=lambda a: (self.stats.count_is(a), a))
+                bycnt = (
+                    freef
+                    if self.sampler == "uniform"
+                    else sorted(freef, key=lambda a: (self.stats.count_is(a), a))
+                )
                 le = pool if self.sampler == "uniform" else min(pool, max(4 * u, u))
                 # partial sort up to le already sorted; keep first le
                 if le < pool:
@@ -234,7 +238,11 @@ class SampledStep:
             u = int(self.explore * want + 0.5) if self.sampler != "uniform" else want
             u = min(u, want)
             if u > 0:
-                bycnt = sorted(memb, key=lambda a: (self.stats.count_isnot(a), a))
+                bycnt = (
+                    memb
+                    if self.sampler == "uniform"
+                    else sorted(memb, key=lambda a: (self.stats.count_isnot(a), a))
+                )
                 le = pool if self.sampler == "uniform" else min(pool, max(4 * u, u))
                 if le < pool:
                     bycnt = bycnt[:le]
