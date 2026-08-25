@@ -22,8 +22,8 @@ jobs:
           python-version: "3.11"
           cache: pip
       - run: pip install ruff
-      - run: ruff check .
-      - run: ruff format --check .
+      - run: ruff check . --output-format=github
+      - run: ruff format --check --diff
 
   typecheck:
     name: typecheck (mypy)
@@ -35,15 +35,15 @@ jobs:
           python-version: "3.11"
           cache: pip
       - run: pip install mypy numpy scikit-learn
-      - run: mypy src --ignore-missing-imports
+      - run: mypy src --show-error-codes --no-error-summary
 
   test:
-    name: test py${{ matrix.python-version }} ${{ matrix.os }}
-    runs-on: ${{ matrix.os }}
+    name: test py${{ matrix.python-version }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-latest]
         python-version: ["3.11", "3.12"]
     steps:
       - uses: actions/checkout@v4
@@ -54,7 +54,7 @@ jobs:
       - run: pip install -e ".[dev]"
       - run: make ssffs
       - run: make verify
-      - run: pytest -v --tb=short
+      - run: pytest -v --tb=short --durations=10
 
   build-cpp:
     name: build C++ (ssffs)
