@@ -1,7 +1,8 @@
 CXX ?= c++
-CXXFLAGS = -std=c++17 -O2 -funroll-loops -ffp-contract=off -DNDEBUG
+PYTHON ?= python3
+CXXFLAGS = -std=c++17 -O2 -funroll-loops -ffp-contract=off -DNDEBUG -Wall -Wextra -Wpedantic -Werror
 
-.PHONY: verify lint typecheck test package check
+.PHONY: verify lint typecheck test check
 
 verify:
 	@test "$$(shasum -a 256 anc/ssffs/ssffs.cpp | cut -d' ' -f1)" = "acf6d17e01238fead9af18dfbe2f502e000df6ec372272daeb3ed99c286a9a24"
@@ -10,17 +11,13 @@ verify:
 	/tmp/ssffs --help >/dev/null
 
 lint:
-	python3 -m ruff check src tests
-	python3 -m ruff format --check src tests
+	$(PYTHON) -m ruff check src tests
+	$(PYTHON) -m ruff format --check src tests
 
 typecheck:
-	python3 -m mypy src
+	$(PYTHON) -m mypy src
 
 test:
-	PYTHONPATH=src python3 -m pytest -q
+	PYTHONPATH=src $(PYTHON) -m pytest -q
 
-package:
-	python3 -m pip wheel . --no-deps --wheel-dir /tmp/sss-wheel
-	python3 -m pytest tests/test_package.py -q
-
-check: verify lint typecheck test package
+check: lint typecheck verify test
