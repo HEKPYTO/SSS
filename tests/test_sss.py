@@ -62,6 +62,15 @@ def test_invalid_fit_inputs_raise_value_error(X, y):
         SFFS().fit(X, y, target_size=1)
 
 
+@pytest.mark.parametrize("y", [np.array(0), np.array([[0], [0], [1], [1]])])
+def test_fit_rejects_nonvector_labels(y):
+    from sss import SFFS
+
+    X, _ = _data()
+    with pytest.raises(ValueError):
+        SFFS().fit(X, y, target_size=1)
+
+
 @pytest.mark.parametrize(
     "kwargs",
     [
