@@ -2,6 +2,8 @@
 
 `stochastic-sequential-search` is a Python implementation of the sSFFS instance studied by Somol and Grim. It is verified against the immutable C++ ancillary implementation for a bounded Reuters configuration: the seeded feature trajectory, step diagnostics, result `[71, 110, 114, 152, 6611]`, and 659 evaluations agree; final values are compared within `1e-11`.
 
+This project is an independent implementation of the published research. It is not affiliated with, endorsed by, or maintained by the paper's authors or research team.
+
 ## Install
 
 ```bash
