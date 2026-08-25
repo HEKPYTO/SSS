@@ -1,36 +1,39 @@
-# SSS — Stochastic Sequential Search (sSFFS)
+# Stochastic Sequential Search
 
-Reproduction of **Somol & Grim "Stochastic Sequential Search in Very-High-Dimensional Feature Selection"** [`arXiv:2608.01502`](https://arxiv.org/abs/2608.01502) — budgeted sampled `sADD`/`sRMV` operators turning any sequential method into per-step `O(y)` independent of `D`, studied as `sSFFS`.
+`stochastic-sequential-search` is a Python implementation of the sSFFS instance studied by Somol and Grim. It is verified against the immutable C++ ancillary implementation for a bounded Reuters configuration: the seeded feature trajectory, step diagnostics, result `[71, 110, 114, 152, 6611]`, and 659 evaluations agree; final values are compared within `1e-11`.
 
-> **Reference impl vendored:** `anc/ssffs/ssffs.cpp` (MIT, 1208 lines, `c++ -std=c++17 -O2 -funroll-loops -ffp-contract=off -DNDEBUG`) reproduces FST4 bit for bit (see `anc/ssffs/README.md`, `verify.sh`). SHA `reuters_apte.arff` = `4b22e0e94f53993595f5fa80c7eca0b5dbda0ec80423ac2e31861e156ea1834a`.
-
-## Quick start
+## Install
 
 ```bash
-make ssffs                    # builds ./ssffs exactly as paper
-./ssffs --data anc/data/reuters_apte.arff --rr-train 50 --rr-test 40 --scaler void \
-        --criterion multinom-bhattacharyya --target-d 25 --sffs-delta 5 \
-        --step-cap 100 --step-cap-backward 50 --warmup-probes 2000 --warmup-card 25 --seed 1
-
-# Python API (same PRNG/splits as C++)
-python3 -c "from src.sss.prng import ss_srand, ss_rand; ss_srand(1); print([ss_rand() for _ in range(5)])"
-# → [41, 18467, 6334, 26500, 19169]
-
-# Development
-make dev                      # pip install -e .[dev] + pre-commit hooks
-make lint                     # ruff check + format --check
-make typecheck                # mypy src
-make check                    # lint + typecheck + test
-make test                     # pytest (builds ssffs)
-pre-commit run --all-files    # run hooks on all files
+python -m pip install stochastic-sequential-search
 ```
 
-## Layout
+Python 3.11 through 3.14 are supported.
 
-- `anc/` — verbatim arXiv ancillary (`ssffs.cpp`, `uci2arff.py`, `trn2arff.py`, 9 `configs/*.cfg`, `reuters_apte.arff`)
-- `src/sss/` — Python port (`prng.py`, `arff.py`, `split.py`, `subset.py`, `criteria.py`, `weighter.py`, `sampled_step.py`, `sss.py`) — line-for-line same formulas as `ssffs.cpp`
-- `scripts/` — `madelon.py`, `gisette.py`, `reuters.py` reproducing Sec 5 benchmarks
+```python
+from sss import SFFS
 
-## Plan
+result = SFFS(forward_budget=100, backward_budget=50, seed=1).fit(X, y, target_size=20)
+print(result.features, result.value, result.evaluations)
+```
 
+`fit` uses the wrapper criterion. `fit_arff(path, target_size=..., criterion="wrapper-knn" | "multinom-bhattacharyya")` loads ARFF data and returns the same immutable result type.
 
+## Command line
+
+```bash
+sss --data data.arff --criterion multinom-bhattacharyya --target-d 25 \
+  --rr-train 50 --rr-test 40 --step-cap 100 --step-cap-backward 50 \
+  --warmup-probes 2000 --warmup-card 25 --seed 1
+```
+
+The final result is one JSON object on stdout. Add `--progress` for solution and step diagnostics on stderr. The reference paper configurations use wrapper k-NN with three folds and `to01` scaling for Madelon/Gisette, and multinomial Bhattacharyya with unscaled Reuters data. Obtain and convert the paper datasets with the scripts in `anc/ssffs`; Reuters data remains subject to its original research-use terms.
+
+The paper describes a broader stochastic sequential-search family. This release implements its sSFFS ancillary configuration, not every possible SSS host search.
+
+## Development
+
+```bash
+make check
+python -m pytest tests/test_parity.py -vv
+```
