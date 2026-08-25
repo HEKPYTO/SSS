@@ -52,7 +52,7 @@ quote-style = "double"
 indent-style = "space"
 
 [tool.mypy]
-python_version = "3.11"
+python_version = "3.12"
 warn_return_any = true
 warn_unused_configs = true
 warn_unused_ignores = true
@@ -62,6 +62,7 @@ no_implicit_optional = true
 strict_optional = true
 show_error_codes = true
 ignore_missing_imports = true
+follow_imports = "skip"
 
 [[tool.mypy.overrides]]
 module = "numpy.*"

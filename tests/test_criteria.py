@@ -5,7 +5,7 @@ import numpy as np
 
 
 def _subset(size, *features):
-    from src.sss.subset import Subset
+    from sss.subset import Subset
 
     subset = Subset(size)
     subset.deselect_all()
@@ -15,8 +15,8 @@ def _subset(size, *features):
 
 
 def _wrapper_data():
-    from src.sss.arff import ArffData
-    from src.sss.split import Split
+    from sss.arff import ArffData
+    from sss.split import Split
 
     data = ArffData(2, 2, [3, 3], np.array([0, 0, 0, 1, 1, 0, 10, 10, 10, 11, 11, 10], dtype=float))
     split = Split(2)
@@ -26,7 +26,7 @@ def _wrapper_data():
 
 
 def test_wrapper_knn_uses_first_maximum_for_equal_distances():
-    from src.sss.criteria import WrapperKnn
+    from sss.criteria import WrapperKnn
 
     data, split = _wrapper_data()
     data.data[:] = 0
@@ -35,7 +35,7 @@ def test_wrapper_knn_uses_first_maximum_for_equal_distances():
 
 
 def test_wrapper_uses_reference_neighbor_rule_without_sklearn(monkeypatch):
-    from src.sss.criteria import WrapperKnn
+    from sss.criteria import WrapperKnn
 
     class WrongKnn:
         def __init__(self, *args, **kwargs):
@@ -59,8 +59,8 @@ def test_wrapper_uses_reference_neighbor_rule_without_sklearn(monkeypatch):
 
 
 def test_multinom_bhattacharyya_scores_singletons_and_subsets():
-    from src.sss.arff import ArffData
-    from src.sss.criteria import MultinomBhattacharyya
+    from sss.arff import ArffData
+    from sss.criteria import MultinomBhattacharyya
 
     data = ArffData(3, 2, [2, 2], np.array([2, 0, 1, 1, 0, 1, 0, 2, 1, 0, 1, 2], dtype=float))
     criterion = MultinomBhattacharyya(data, [[0, 1], [0, 1]])

@@ -1,6 +1,6 @@
 def test_weighter_zcontrast_and_horizon():
-    from src.sss.subset import Subset
-    from src.sss.weighter import Weighter
+    from sss.subset import Subset
+    from sss.weighter import Weighter
 
     w = Weighter(horizon=100)
     w.reset(5)
@@ -40,8 +40,8 @@ def test_weighter_zcontrast_and_horizon():
 
 
 def test_weighter_horizon_forgetting():
-    from src.sss.subset import Subset
-    from src.sss.weighter import Weighter
+    from sss.subset import Subset
+    from sss.weighter import Weighter
 
     w = Weighter(horizon=2)
     w.reset(2)
@@ -74,7 +74,7 @@ def test_weighter_horizon_forgetting():
 
 
 def test_weighter_reset_and_empty_flush():
-    from src.sss.weighter import Weighter
+    from sss.weighter import Weighter
 
     w = Weighter(horizon=100)
     w.reset(3)

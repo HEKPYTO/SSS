@@ -109,12 +109,12 @@ class MultinomBhattacharyya:
         self.d = d
         self.n = d.n_features
         self.classes = d.n_classes
-        self.Nsuminclass = np.zeros(self.n * self.classes, dtype=np.float64)
-        self.Pc = np.zeros(self.classes, dtype=np.float64)
-        self.Pc_d = np.zeros(self.classes, dtype=np.float64)
-        self.theta = np.zeros(self.n * self.classes, dtype=np.float64)
-        self.IB = np.zeros(self.n, dtype=np.float64)
-        self.index = np.zeros(self.n, dtype=np.int64)
+        self.Nsuminclass: np.ndarray = np.zeros(self.n * self.classes, dtype=np.float64)
+        self.Pc: np.ndarray = np.zeros(self.classes, dtype=np.float64)
+        self.Pc_d: np.ndarray = np.zeros(self.classes, dtype=np.float64)
+        self.theta: np.ndarray = np.zeros(self.n * self.classes, dtype=np.float64)
+        self.IB: np.ndarray = np.zeros(self.n, dtype=np.float64)
+        self.index: np.ndarray = np.zeros(self.n, dtype=np.int64)
         class_size_sum = sum(d.class_size)
         for c in range(self.classes):
             self.Pc[c] = d.class_size[c] / class_size_sum if class_size_sum else 0
