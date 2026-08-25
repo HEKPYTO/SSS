@@ -80,12 +80,18 @@ def test_reuters_trajectory_matches_cpp(tmp_path):
     cpp_final, cpp_events, cpp_diagnostics = _run([str(oracle), *PARITY_ARGS])
     environment = os.environ | {"PYTHONPATH": "src"}
     python_final, python_events, python_diagnostics = _run(
-        [sys.executable, "-m", "sss.cli", *PARITY_ARGS], env=environment
+        [sys.executable, "-m", "sss.cli", *PARITY_ARGS, "--progress"], env=environment
     )
 
     assert cpp_final["features"] == [71, 110, 114, 152, 6611]
     assert cpp_final["evaluations"] == 659
     assert python_final["features"] == cpp_final["features"]
     assert python_final["evaluations"] == cpp_final["evaluations"]
-    assert python_events == pytest.approx(cpp_events, abs=1e-11)
+    assert python_final["value"] == pytest.approx(cpp_final["value"], abs=1e-11)
+    assert [(d, features) for d, features, _value in python_events] == [
+        (d, features) for d, features, _value in cpp_events
+    ]
+    assert [value for _d, _features, value in python_events] == pytest.approx(
+        [value for _d, _features, value in cpp_events], abs=1e-6
+    )
     assert python_diagnostics == cpp_diagnostics

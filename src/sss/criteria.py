@@ -38,19 +38,8 @@ class WrapperKnn:
             self.class_offset.append(off)
             off += d.class_size[c] * d.n_features
         self.feats: list[int] = []
-        # precompute per-class matrices for fast sklearn path
-        self.class_mats: list[np.ndarray] = []
-        for c in range(d.n_classes):
-            off = self.class_offset[c]
-            sz = d.class_size[c]
-            mat = (
-                d.data[off : off + sz * d.n_features].reshape(sz, d.n_features)
-                if sz
-                else np.zeros((0, d.n_features))
-            )
-            self.class_mats.append(mat)
 
-    def _pattern(self, cls: int, idx: int) -> np.ndarray:
+    def _pattern(self, cls: int, idx: int):
         off = self.class_offset[cls] + idx * self.n_features
         return self.d.data[off : off + self.n_features]
 
@@ -60,55 +49,7 @@ class WrapperKnn:
             return False, 0.0
         feats = sorted(feats)
         self.feats = feats
-        # fast brute KNN for speed, fallback to exact tie handling if needed
-        try:
-            from sklearn.neighbors import KNeighborsClassifier
-
-            total = 0.0
-            cnt = 0
-            for split in self.folds:
-                # build train
-                X_train_parts = []
-                y_train_parts = []
-                for c in range(self.n_classes):
-                    idxs = split.train[c]
-                    if not idxs:
-                        continue
-                    X_train_parts.append(self.class_mats[c][idxs][:, feats])
-                    y_train_parts.append(np.full(len(idxs), c, dtype=int))
-                if not X_train_parts:
-                    return False, 0.0
-                X_train = np.vstack(X_train_parts)
-                y_train = np.concatenate(y_train_parts)
-                # build test
-                X_test_parts = []
-                y_test_parts = []
-                for c in range(self.n_classes):
-                    idxs = split.test[c]
-                    if not idxs:
-                        continue
-                    X_test_parts.append(self.class_mats[c][idxs][:, feats])
-                    y_test_parts.append(np.full(len(idxs), c, dtype=int))
-                if not X_test_parts:
-                    continue
-                X_test = np.vstack(X_test_parts)
-                y_test = np.concatenate(y_test_parts)
-                n_train = X_train.shape[0]
-                k_eff = min(self.k, n_train)
-                if k_eff <= 0:
-                    return False, 0.0
-                # tie-avoidance: C++ keeps max_size=(k-1)*C+1 nearest, then votes k.
-                # sklearn with uniform weights and brute search returns deterministic nearest by stable sort; for k=1 they match.
-                # For k>1 small, difference only in tie handling at exactly equal distances (rare).
-                clf = KNeighborsClassifier(n_neighbors=k_eff, p=2, algorithm="brute")
-                clf.fit(X_train, y_train)
-                y_pred = clf.predict(X_test)
-                acc = float(np.mean(y_pred == y_test)) if len(y_test) else 0.0
-                total += acc
-                cnt += 1
-            return True, total / cnt if cnt else 0.0
-        except Exception:  # noqa: BLE001 — fallback to exact logic when sklearn fails
-            return self._evaluate_exact(feats)
+        return self._evaluate_exact(feats)
 
     def _evaluate_exact(self, feats):
         total = 0.0

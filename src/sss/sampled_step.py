@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import math
-import sys
 from typing import TYPE_CHECKING
 
 from .prng import frand
@@ -45,6 +44,8 @@ class SampledStep:
             self.order_forward = (
                 (self.count_forward - 1) * self.order_forward + r
             ) / self.count_forward
+            if os is None:
+                return
             print(
                 f"\nF order = {r}({order}) avgorder {self.order_forward} count = {self.count_forward} all_evals = {self.all_evals} pool = {pool} proposed = {cnt}",
                 file=os,
@@ -55,6 +56,8 @@ class SampledStep:
             self.order_backward = (
                 (self.count_backward - 1) * self.order_backward + r
             ) / self.count_backward
+            if os is None:
+                return
             print(
                 f"\nB order = {r}({order}) avgorder {self.order_backward} count = {self.count_backward} all_evals = {self.all_evals} pool = {pool} proposed = {cnt}",
                 file=os,
@@ -158,7 +161,7 @@ class SampledStep:
                     W = sum(w)
                     for _ in range(rest):
                         # C++ never breaks when W==0; it falls through to argmax
-                        r = frand() * W if W > 0 else 0.0
+                        r = frand() * W
                         pick = None
                         acc = 0.0
                         for i, wi in enumerate(w):
@@ -267,7 +270,7 @@ class SampledStep:
                     w = [math.exp((smin - s) / t) if t != 0 else 0.0 for s in sc]
                     W = sum(w)
                     for _ in range(rest):
-                        r = frand() * W if W > 0 else 0.0
+                        r = frand() * W
                         pick = None
                         acc = 0.0
                         for i, wi in enumerate(w):
@@ -348,8 +351,6 @@ class SampledStep:
         return self._sampled_backward(sub, crit, pool, self.cap_backward, os)
 
     def Step(self, forward: bool, sub: Subset, crit, os=None):
-        if os is None:
-            os = sys.stderr
         mode_change = sub.forward != forward
         if mode_change:
             sub.set_forward_mode(forward)
