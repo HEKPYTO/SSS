@@ -27,10 +27,14 @@ def test_vendor_compiles_and_runs():
     assert "ssffs" in r.stdout.lower()
 
 
-def test_reuters_sha():
-    with open("anc/data/reuters_apte.arff", "rb") as f:
-        h = hashlib.sha256(f.read()).hexdigest()
-    assert h == "4b22e0e94f53993595f5fa80c7eca0b5dbda0ec80423ac2e31861e156ea1834a"
+def test_official_ancillary_hashes():
+    expected = {
+        "anc/ssffs/ssffs.cpp": "acf6d17e01238fead9af18dfbe2f502e000df6ec372272daeb3ed99c286a9a24",
+        "anc/data/reuters_apte.arff": "4b22e0e94f53993595f5fa80c7eca0b5dbda0ec80423ac2e31861e156ea1834a",
+    }
+    for path, digest in expected.items():
+        with open(path, "rb") as source:
+            assert hashlib.sha256(source.read()).hexdigest() == digest
 
 
 def test_reuters_runs():
