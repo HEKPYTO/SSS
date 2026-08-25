@@ -1,6 +1,6 @@
-"""SSS — Stochastic Sequential Search, sSFFS port of arXiv:2608.01502 ssffs.cpp"""
+"""Stochastic Sequential Search."""
 
+from .sss import SFFS, Result
+
+__all__ = ["SFFS", "Result"]
 __version__ = "0.1.0"
-from .prng import SS_RAND_MAX, frand, ss_rand, ss_srand  # noqa: F401
-
-# minimal package init

@@ -1,12 +1,12 @@
-def test_sfffs_wrapper():
-    import sklearn.datasets
+import numpy as np
 
-    from src.sss.sss import SFFS
 
-    X, y = sklearn.datasets.make_classification(
-        n_samples=200, n_features=20, n_informative=5, random_state=0
+def test_sffs_wrapper_returns_selected_features():
+    from sss import SFFS
+
+    X = np.array([[0, 0], [0, 1], [1, 0], [1, 1], [9, 9], [9, 8], [8, 9], [8, 8]], dtype=float)
+    y = np.array([0, 0, 0, 0, 1, 1, 1, 1])
+    result = SFFS(forward_budget=2, backward_budget=1, cv_folds=0, warmup_probes=0).fit(
+        X, y, target_size=1
     )
-    sel = SFFS(y=5, rho_u=0.2, tau=1.0, warmup_probes=20, warmup_card=5, delta=5, seed=1).fit(
-        X, y, d=5
-    )
-    assert len(sel) == 5
+    assert len(result.features) == 1
