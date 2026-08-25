@@ -30,6 +30,7 @@ dev = ["pytest", "ruff", "mypy"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "-q"
+filterwarnings = ["error"]
 
 [build-system]
 requires = ["hatchling"]
@@ -46,7 +47,7 @@ line-length = 100
 target-version = "py311"
 
 [tool.ruff.lint]
-select = ["E", "F", "I", "UP", "S", "B", "SIM", "ARG", "BLE", "RUF"]
+select = ["E", "F", "W", "I", "UP", "S", "B", "SIM", "ARG", "BLE", "RUF"]
 ignore = ["D", "S101", "S603", "S607", "S108", "E501"]
 
 [tool.ruff.format]
@@ -54,7 +55,7 @@ quote-style = "double"
 indent-style = "space"
 
 [tool.mypy]
-python_version = "3.12"
+python_version = "3.11"
 warn_return_any = true
 warn_unused_configs = true
 warn_unused_ignores = true
