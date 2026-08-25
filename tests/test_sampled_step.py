@@ -187,3 +187,26 @@ def test_topk_sampler():
     # topk should have proposed highest scoring features; with Dummy value max index, 29 is best and should be among top 5
     # Since prop is sorted descending score, and 29 has highest score, it will be in prop, and maximize v => should pick 29
     assert 29 in sub.members()
+
+
+def test_softmax_consumes_rng_after_weight_underflow():
+    from src.sss.prng import ss_rand, ss_srand
+    from src.sss.sampled_step import SampledStep
+    from src.sss.subset import Subset
+    from src.sss.weighter import Weighter
+
+    class Criterion:
+        def evaluate(self, sub):
+            return True, float(sum(sub.members()))
+
+    stats = Weighter()
+    stats.reset(4)
+    for feature in range(1, 4):
+        stats._fs[feature]["m_is"] = -10_000.0
+    step = SampledStep(stats, cap=3, explore=0.0, tau=1.0)
+    subset = Subset(4)
+    subset.deselect_all()
+    ss_srand(1)
+
+    assert step.Step(True, subset, Criterion(), io.StringIO())[0]
+    assert ss_rand() == 26500
