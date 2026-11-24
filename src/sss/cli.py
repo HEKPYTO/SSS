@@ -1,15 +1,20 @@
 from __future__ import annotations
 
 import argparse
-import json
 import sys
+from typing import NoReturn
 
 from .arff import load_arff
 from .sss import _run
 
 
+class _ReferenceParser(argparse.ArgumentParser):
+    def error(self, message: str) -> NoReturn:
+        self.exit(1, f"ssffs: {message}\n")
+
+
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description="Stochastic Sequential Forward Floating Search")
+    parser = _ReferenceParser(description="Stochastic Sequential Forward Floating Search")
     parser.add_argument("--data", required=True)
     parser.add_argument("--rr-train", type=int, default=50)
     parser.add_argument("--rr-test", type=int, default=50)
@@ -63,16 +68,12 @@ def main(argv: list[str] | None = None) -> int:
             stream=sys.stderr if args.progress else None,
         )
     except (RuntimeError, ValueError) as error:
-        build_parser().error(str(error))
+        print(f"ssffs: {error}", file=sys.stderr)
+        return 1
+    features = ", ".join(str(feature) for feature in result.features)
     print(
-        json.dumps(
-            {
-                "value": result.value,
-                "size": len(result.features),
-                "features": result.features,
-                "evaluations": result.evaluations,
-            }
-        )
+        f'{{"value": {format(result.value, ".12g")}, "size": {len(result.features)}, '
+        f'"features": [{features}], "evaluations": {result.evaluations}}}'
     )
     return 0
 

@@ -265,3 +265,84 @@ def test_uniform_trajectory_matches_cpp_after_counts_change(tmp_path):
     )
     assert python_diagnostics == cpp_diagnostics
     assert any(direction == "B" for direction, *_rest in python_diagnostics)
+
+
+def test_softmax_floor_trajectory_matches_cpp_when_floor_covers_pool(tmp_path):
+    data = tmp_path / "softmax_floor.arff"
+    rows = []
+    for label, offset in (("left", 0), ("right", 1)):
+        for i in range(10):
+            rows.append(
+                ",".join(
+                    str(value)
+                    for value in (
+                        5 * offset,
+                        i % 2,
+                        (i % 3) + offset,
+                        (i % 4) * (offset + 1),
+                        1 - offset,
+                        (i % 5) if offset == 0 else 4 - (i % 5),
+                    )
+                )
+                + f",{label}"
+            )
+    data.write_text(
+        "@RELATION softmax_floor\n"
+        + "".join(f"@ATTRIBUTE f{feature} NUMERIC\n" for feature in range(6))
+        + "@ATTRIBUTE class {left,right}\n@DATA\n"
+        + "\n".join(rows)
+        + "\n"
+    )
+    args = [
+        "--data",
+        str(data),
+        "--rr-train",
+        "50",
+        "--rr-test",
+        "40",
+        "--scaler",
+        "void",
+        "--criterion",
+        "multinom-bhattacharyya",
+        "--target-d",
+        "5",
+        "--sffs-delta",
+        "0",
+        "--step-cap",
+        "3",
+        "--step-cap-backward",
+        "3",
+        "--step-explore",
+        "1.0",
+        "--seed",
+        "1",
+    ]
+    oracle = tmp_path / "ssffs"
+    subprocess.run(
+        [
+            "c++",
+            "-std=c++17",
+            "-O2",
+            "-funroll-loops",
+            "-ffp-contract=off",
+            "-DNDEBUG",
+            "-o",
+            str(oracle),
+            "anc/ssffs/ssffs.cpp",
+        ],
+        check=True,
+    )
+    cpp_final, cpp_events, cpp_diagnostics = _run([str(oracle), *args])
+    python_final, python_events, python_diagnostics = _run(
+        [sys.executable, "-m", "sss.cli", *args, "--progress"],
+        env=os.environ | {"PYTHONPATH": "src"},
+    )
+
+    assert any(direction == "B" for direction, *_rest in python_diagnostics)
+    assert python_final["features"] == cpp_final["features"]
+    assert python_final["evaluations"] == cpp_final["evaluations"]
+    assert python_final["value"] == pytest.approx(cpp_final["value"], abs=1e-11)
+    assert [(d, features) for d, features, _value in python_events] == [
+        (d, features) for d, features, _value in cpp_events
+    ]
+    assert python_diagnostics == cpp_diagnostics

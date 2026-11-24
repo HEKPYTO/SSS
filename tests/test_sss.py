@@ -76,8 +76,6 @@ def test_fit_rejects_nonvector_labels(y):
     [
         {"forward_budget": -1},
         {"backward_budget": -1},
-        {"exploration": -0.1},
-        {"exploration": 1.1},
         {"horizon": 0},
         {"warmup_probes": -1},
         {"warmup_size": 0},
@@ -96,7 +94,6 @@ def test_invalid_configuration_raises_value_error(kwargs):
     [
         {"forward_budget": -1},
         {"backward_budget": -1},
-        {"exploration": 2.0},
         {"horizon": 0},
         {"warmup_probes": -1},
         {"warmup_size": 0},

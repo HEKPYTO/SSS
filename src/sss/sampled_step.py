@@ -117,25 +117,15 @@ class SampledStep:
             u = int(self.explore * want + 0.5) if self.sampler != "uniform" else want
             u = min(u, want)
             if u > 0:
-                bycnt = (
-                    freef
-                    if self.sampler == "uniform"
-                    else sorted(freef, key=lambda a: (self.stats.count_is(a), a))
-                )
                 le = pool if self.sampler == "uniform" else min(pool, max(4 * u, u))
-                # partial sort up to le already sorted; keep first le
                 if le < pool:
-                    # keep first le sorted, rest not considered for floor
-                    bycnt = bycnt[:le]
-                    le = len(bycnt)
+                    bycnt = sorted(freef, key=lambda a: (self.stats.count_is(a), a))[:le]
                 else:
-                    le = len(bycnt)
+                    bycnt = freef.copy()
                 for k in range(u):
-                    # uniform draw from [k, le)
                     if le - k <= 0:
                         break
                     j = k + int(frand() * (le - k))
-                    # swap
                     bycnt[k], bycnt[j] = bycnt[j], bycnt[k]
                     prop.append(bycnt[k])
                     taken[bycnt[k]] = 1
@@ -238,17 +228,11 @@ class SampledStep:
             u = int(self.explore * want + 0.5) if self.sampler != "uniform" else want
             u = min(u, want)
             if u > 0:
-                bycnt = (
-                    memb
-                    if self.sampler == "uniform"
-                    else sorted(memb, key=lambda a: (self.stats.count_isnot(a), a))
-                )
                 le = pool if self.sampler == "uniform" else min(pool, max(4 * u, u))
                 if le < pool:
-                    bycnt = bycnt[:le]
-                    le = len(bycnt)
+                    bycnt = sorted(memb, key=lambda a: (self.stats.count_isnot(a), a))[:le]
                 else:
-                    le = len(bycnt)
+                    bycnt = memb.copy()
                 for k in range(u):
                     if le - k <= 0:
                         break

@@ -25,7 +25,7 @@ def _emit_solution(stream: TextIO | None, value: float, sub: Subset) -> None:
     if stream is not None:
         features = ",".join(str(feature) for feature in sub.members())
         stream.write(
-            f'{{"event":"solution","value":{value},"d":{sub.get_d()},"features":[{features}]}}\n'
+            f'{{"event":"solution","value":{value:.6g},"d":{sub.get_d()},"features":[{features}]}}\n'
         )
         stream.flush()
 
@@ -129,8 +129,6 @@ def _run(
 ) -> Result:
     if forward_budget < 0 or backward_budget < 0:
         raise ValueError("budgets must be non-negative")
-    if not 0 <= exploration <= 1:
-        raise ValueError("exploration must be in 0..1")
     if horizon < 1 or warmup_probes < 0 or warmup_size < 1 or frontier_delta < 0:
         raise ValueError("invalid sampled-step configuration")
     if not 0 <= cap_fraction <= 1:
@@ -211,8 +209,8 @@ class SFFS:
         knn_k: int = 1,
         cv_folds: int = 3,
     ) -> None:
-        if forward_budget < 0 or backward_budget < 0 or not 0 <= exploration <= 1:
-            raise ValueError("invalid search budget or exploration")
+        if forward_budget < 0 or backward_budget < 0:
+            raise ValueError("invalid search budget")
         if temperature is not None and temperature <= 0:
             raise ValueError("temperature must be positive or None")
         if horizon < 1 or warmup_probes < 0 or warmup_size < 1 or frontier_delta < 0:

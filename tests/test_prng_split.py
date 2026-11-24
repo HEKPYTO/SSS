@@ -59,6 +59,26 @@ def test_arff_rejects_unterminated_sparse_row(tmp_path):
         load_arff(str(path))
 
 
+def test_arff_ignores_unknown_directives_like_reference(tmp_path):
+    from sss.arff import load_arff
+
+    path = tmp_path / "extension.arff"
+    path.write_text(
+        "@RELATION tiny\n@ATTRIBUTE x NUMERIC\n@ATTRIBUTE class {a,b}\n"
+        "@DATAX ignored\n@DATA\n0,a\n1,b\n"
+    )
+    assert load_arff(str(path)).class_size == [1, 1]
+
+
+def test_arff_directory_raises_value_error(tmp_path):
+    import pytest
+
+    from sss.arff import load_arff
+
+    with pytest.raises(ValueError, match="cannot open"):
+        load_arff(str(tmp_path))
+
+
 def test_scaler_to01():
     import numpy as np
 

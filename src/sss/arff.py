@@ -17,7 +17,7 @@ class ArffData:
 
 
 def _die(msg: str):
-    raise ValueError(f"ssffs: {msg}")
+    raise ValueError(msg)
 
 
 def _upper(s: str) -> str:
@@ -33,7 +33,7 @@ def load_arff(path: str) -> ArffData:
     try:
         with open(path, encoding="utf-8", errors="strict") as f:
             raw = f.read().splitlines()
-    except FileNotFoundError:
+    except OSError:
         _die(f"cannot open '{path}'")
     attrs: list[dict] = []  # {name, nominal, is_class, values}
     class_attr = -1
@@ -196,21 +196,17 @@ def load_arff(path: str) -> ArffData:
                     _die("dense row without class value")
             records.append((rec_feat, cls_holder[0]))
         elif t.startswith("@"):
-            # find key
-            # ssffs.cpp: char *val = line+2; while (*val != ' ' && ...) val++; *val=0
-            # then upper(line) for key
-            # We replicate simpler
-            upper_line = _upper(t)
-            if upper_line.startswith("@RELATION"):
+            key = _upper(t.split(None, 1)[0])
+            if key == "@RELATION":
                 continue
-            if upper_line.startswith("@DATA"):
+            if key == "@DATA":
                 reading_data = True
                 prepare_attributes()
                 continue
-            if upper_line.startswith("@ATTRIBUTE"):
+            if key == "@ATTRIBUTE":
                 # parse: @ATTRIBUTE <name> <type>
                 # name may be quoted or single word, type is rest
-                rest = t[len("@ATTRIBUTE") :].strip()
+                rest = t[len(key) :].strip()
                 if not rest:
                     _die("empty attribute definition")
                 # name is first token (quoted or unquoted)
