@@ -135,14 +135,18 @@ class MultinomBhattacharyya:
             allpatterns += len(outer_train[c])
             wCV += self.n
         self.allpatterns = allpatterns
-        total_sum = float(np.sum(self.Nsuminclass))
+        total_sum = 0.0
+        for value in self.Nsuminclass:
+            total_sum += float(value)
         if total_sum == 0:
             for c in range(self.classes):
                 self.Pc_d[c] = 1.0 / self.classes
         else:
             wCV = 0
             for c in range(self.classes):
-                class_sum = float(np.sum(self.Nsuminclass[wCV : wCV + self.n]))
+                class_sum = 0.0
+                for f in range(self.n):
+                    class_sum += float(self.Nsuminclass[wCV + f])
                 self.Pc_d[c] = class_sum / total_sum
                 wCV += self.n
         self.doc_avg_length = total_sum / allpatterns if allpatterns else 0.0

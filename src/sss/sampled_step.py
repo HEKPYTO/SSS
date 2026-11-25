@@ -152,7 +152,9 @@ class SampledStep:
                 else:
                     smax = max(sc)
                     w = [math.exp((s - smax) / t) if t != 0 else 0.0 for s in sc]
-                    W = sum(w)
+                    W = 0.0
+                    for wi in w:
+                        W += wi
                     for _ in range(rest):
                         # C++ never breaks when W==0; it falls through to argmax
                         r = frand() * W
@@ -260,7 +262,9 @@ class SampledStep:
                 if sc:
                     smin = min(sc)
                     w = [math.exp((smin - s) / t) if t != 0 else 0.0 for s in sc]
-                    W = sum(w)
+                    W = 0.0
+                    for wi in w:
+                        W += wi
                     for _ in range(rest):
                         r = frand() * W
                         pick = None

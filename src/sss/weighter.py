@@ -46,8 +46,15 @@ class Weighter:
         B = len(self._batch)
         if B == 0:
             return
-        mu = sum(v for v, _ in self._batch) / B
-        var = sum((v - mu) ** 2 for v, _ in self._batch) / B
+        mu = 0.0
+        for v, _ in self._batch:
+            mu += v
+        mu /= B
+        var = 0.0
+        for v, _ in self._batch:
+            dv = v - mu
+            var += dv * dv
+        var /= B
         sd = math.sqrt(var)
         degenerate = not (sd > 1e-12)
         for value, selected in self._batch:
