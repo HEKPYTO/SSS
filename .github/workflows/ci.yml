@@ -28,6 +28,17 @@ jobs:
             echo "$unexpected"
             exit 1
           fi
+      - name: Enforce module READMEs
+        run: |
+          test -f README.md
+          missing=""
+          for dir in $(git ls-files 'src/**/*.py' | xargs -n1 dirname | sort -u); do
+            test -f "$dir/README.md" || missing="$missing $dir"
+          done
+          if [ -n "$missing" ]; then
+            echo "Missing README.md:$missing"
+            exit 1
+          fi
       - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0
         with:
           python-version-file: .python-version
