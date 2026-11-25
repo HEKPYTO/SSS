@@ -1,5 +1,9 @@
 # Stochastic Sequential Search
 
+[![CI](https://img.shields.io/github/actions/workflow/status/HEKPYTO/SSS/ci.yml?branch=main)](https://github.com/HEKPYTO/SSS/actions/workflows/ci.yml)
+[![Python](https://img.shields.io/badge/python-3.11%20%7C%203.12%20%7C%203.13%20%7C%203.14-blue)](https://www.python.org/)
+[![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
+
 > Independent Python implementation of
 > [Somol and Grim's sSFFS research](https://arxiv.org/abs/2608.01502).
 > Python 3.11+ · NumPy · library and command-line interfaces.
@@ -13,12 +17,19 @@ match; criterion values are compared within `1e-11`.
 > paper and its ancillary source code. It is not affiliated with, endorsed by,
 > or maintained by the paper's authors, their institutions, or research team.
 
-## Installation
+## Quick start
 
-Install from a source checkout:
+Requires Python 3.11+ and NumPy (installed with the package).
 
 ```bash
 python -m pip install .
+```
+
+```python
+from sss import SFFS
+
+result = SFFS(forward_budget=100, backward_budget=50, seed=1).fit(X, y, target_size=20)
+print(result.features)
 ```
 
 For development:
@@ -88,6 +99,16 @@ The paper defines a broader stochastic sequential-search family. This package
 implements the sSFFS configuration exposed by the ancillary executable; other
 host searches, including sOS, are outside the release scope.
 
+## Verified results
+
+Both configurations were run against the compiled reference at seed 1. Final
+value, subset, evaluation count, solution trace, and step diagnostics match.
+
+| Configuration | Value | Subset | Evaluations | Python vs C++ |
+|---|---|---|---|---|
+| Reuters filter, paper setup (`d=25`, `Δ=5`, caps 100/50, warm-up 2000) | 1.45662094486 | 25 features | 39,099 | identical |
+| Reuters bounded parity (`d=5`, `Δ=5`, caps 10/5, warm-up 2000) | 0.497431245471 | 5 features | 2,436 | identical |
+
 ## Reference parity
 
 The automated parity suite compares the Python implementation with the vendored
@@ -125,6 +146,14 @@ clean-wheel installation smoke test. To run only the cross-language checks:
 ```bash
 python -m pytest tests/test_parity.py -vv
 ```
+
+## Documentation
+
+- [`src/sss/README.md`](src/sss/README.md) — package modules, numeric contract,
+  search semantics.
+- [`anc/ssffs/README.md`](anc/ssffs/README.md) — reference executable, paper
+  configurations, verification against FST4.
+- [`anc/README.md`](anc/README.md) — vendored research material and data terms.
 
 ## Research source
 
