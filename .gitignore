@@ -20,3 +20,8 @@ venv/
 .idea/
 .vscode/
 *.log
+docs/
+*.md
+!README.md
+!**/README.md
+!LICENSE
