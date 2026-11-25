@@ -29,21 +29,19 @@ def test_public_fit_returns_immutable_result():
 
 def test_fit_arff_loads_path_without_mutating_caller_data(tmp_path):
     from sss import SFFS
-    from sss.arff import load_arff
 
     path = tmp_path / "tiny.arff"
     path.write_text(
         "@RELATION tiny\n@ATTRIBUTE x NUMERIC\n@ATTRIBUTE y NUMERIC\n"
         "@ATTRIBUTE class {a,b}\n@DATA\n0,0,a\n0,1,a\n1,0,b\n1,1,b\n"
     )
-    original = load_arff(str(path))
-    before = original.data.copy()
+    before = path.read_bytes()
     result = SFFS(forward_budget=2, backward_budget=1, warmup_probes=0).fit_arff(
         str(path), target_size=1, criterion="multinom-bhattacharyya"
     )
 
     assert len(result.features) == 1
-    assert np.array_equal(original.data, before)
+    assert path.read_bytes() == before
 
 
 @pytest.mark.parametrize(

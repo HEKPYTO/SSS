@@ -132,5 +132,6 @@ def test_cli_uses_auto_temperature_for_nonpositive_tau(tmp_path, monkeypatch):
         return Result((0,), 1.0, 1)
 
     monkeypatch.setattr("sss.cli._run", run)
-    main(["--data", str(path), "--criterion", "multinom-bhattacharyya", "--step-tau", "-1"])
-    assert received["temperature"] is None
+    for tau in ("0", "-1"):
+        main(["--data", str(path), "--criterion", "multinom-bhattacharyya", "--step-tau", tau])
+        assert received["temperature"] is None
